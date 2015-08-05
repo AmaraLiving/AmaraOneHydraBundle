@@ -1,8 +1,15 @@
 {
     "name": "amara/onehydra-bundle",
     "description": "Bundle to integrate Amara's OneHydra library with Symfony2",
+    "repositories": [
+      {
+        "type": "vcs",
+        "url":  "https://github.com/AmaraLiving/php-onehydra"
+      }
+    ],
     "require": {
-        "php": ">=5.3.9"
+        "php": ">=5.3.9",
+        "amara/onehydra": "dev-master"
     },
     "autoload": {
       "psr-0": { "Amara\\Bundle\\OneHydraBundle": "" }
