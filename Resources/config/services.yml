@@ -1,0 +1,14 @@
+parameters:
+     amara_one_hydra.pagemanager.class: Amara\Bundle\OneHydraBundle\Service\PageManager
+     amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
+
+services:
+    onehydra_pagemanager:
+        class: %amara_one_hydra.pagemanager.class%
+        calls:
+            - [setPageProxy, [@onehydra_pageproxy]]
+
+    onehydra_pageproxy:
+        class: %amara_one_hydra.pageproxy%
+        calls:
+            - [setEntityManager, [@doctrine.orm.entity_manager]]

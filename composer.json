@@ -1,0 +1,17 @@
+{
+    "name": "amara/onehydra-bundle",
+    "description": "Bundle to integrate Amara's OneHydra library with Symfony2",
+    "require": {
+        "php": ">=5.3.9"
+    },
+    "autoload": {
+      "psr-0": { "Amara\\Bundle\\OneHydraBundle": "" }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vincenzo Trapani",
+            "email": "vincenzo.trapani@amara.com"
+        }
+    ]
+}
