@@ -42,5 +42,9 @@ class AmaraOneHydraExtension extends ConfigurableExtension
 			$container->setParameter('amara_one_hydra.dynamic_pageproxyservice', $mergedConfig['dynamic_pageproxyservice']);
 		}
 
+		if (array_key_exists('defaultProgramId', $mergedConfig)) {
+			$container->setParameter('amara_one_hydra.defaultProgramId', $mergedConfig['defaultProgramId']);
+		}
+
 	}
 }

@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface {
 		$treeBuilder = new TreeBuilder();
 		$rootNode = $treeBuilder->root('amara_one_hydra');
 		$rootNode->children()
+			->variableNode('defaultProgramId')->defaultValue('www')->end()
 			->variableNode('pageproxy')->end()
 			->variableNode('dynamic_pageproxyservice')->defaultValue('onehydra_pageproxy')->end()
 			->scalarNode('dateinterval')->defaultValue('PT15M')->end()

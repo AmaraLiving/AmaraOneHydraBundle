@@ -22,6 +22,9 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 	 * {@inheritdoc}
 	 */
 	protected function configure() {
+
+		$defaultProgramId = $input->getOption('defaultProgramId');
+
 		$this
 			->setName('onehydra:fetch')
 			->setDescription('Fetchs all the pages infos from OneHydra')
@@ -43,10 +46,8 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 				null,
 				InputOption::VALUE_OPTIONAL,
 				'The program to use',
-				'uk'
+				$defaultProgramId
 			);
-
-			// TODO: move the default option in the config file
 	}
 
 
@@ -118,9 +119,11 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 
 		$requestBuilder->setService(Api::EP_PAGE);
 
+		/** @var \Amara\OneHydra\Service\PageManager $pageManager */
 		$pageManager = $container->get('onehydra_pagemanager');
 
 		foreach ($pages as $page) {
+
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
 
