@@ -45,6 +45,8 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 				'The program to use',
 				'uk'
 			);
+
+			// TODO: move the default option in the config file
 	}
 
 
@@ -82,7 +84,10 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 
 		$programs = $container->getParameter('amara_one_hydra.programs');
 
-		$oneHydraParams = $programs[$input->getOption('host')];
+		// TODO change all 'host' refs into 'program'
+		$host = $input->getOption('host');
+
+		$oneHydraParams = $programs[$host];
 
 		$api->setAuthToken($oneHydraParams['authToken']);
 		//$api->setBaseUrl($endpoint);
@@ -119,8 +124,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
 
-			$pageManager->addPage($pageObject, 'uk');
-
+			$pageManager->addPage($pageObject, $host);
 
 			$progress->advance();
 		}
