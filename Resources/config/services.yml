@@ -16,6 +16,7 @@ services:
 
     twig.onehydra_extension:
         class: %amara_one_hydra.twig_ext.class%
+        arguments: [@request_stack]
         calls:
             - [setPageManager, [@onehydra_pagemanager]]
         tags: 
