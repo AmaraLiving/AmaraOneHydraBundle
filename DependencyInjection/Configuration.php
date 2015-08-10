@@ -21,7 +21,7 @@ class Configuration implements ConfigurationInterface {
 			->variableNode('defaultProgramId')->defaultValue('www')->end()
 			->variableNode('pageproxy')->end()
 			->variableNode('dynamic_pageproxyservice')->defaultValue('onehydra_pageproxy')->end()
-			->variableNode('program_solver_strategy')->defaultValue('onehydra_program_solver_strategy')->end()
+			->variableNode('custom_program_solver_strategy')->defaultValue('onehydra_program_solver_strategy')->end()
 			->scalarNode('dateinterval')->defaultValue('PT15M')->end()
 			->arrayNode('programs')->isRequired()
 				->prototype('array')

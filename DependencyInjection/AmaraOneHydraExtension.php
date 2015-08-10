@@ -45,8 +45,8 @@ class AmaraOneHydraExtension extends ConfigurableExtension
 			$container->setParameter('amara_one_hydra.defaultProgramId', $mergedConfig['defaultProgramId']);
 		}
 
-		if (array_key_exists('program_solver_strategy', $mergedConfig)) {
-			$container->setParameter('amara_one_hydra.program_solver_strategy', $mergedConfig['program_solver_strategy']);
+		if (array_key_exists('custom_program_solver_strategy', $mergedConfig)) {
+			$container->setParameter('amara_one_hydra.custom_program_solver_strategy', $mergedConfig['custom_program_solver_strategy']);
 		}
 
 	
