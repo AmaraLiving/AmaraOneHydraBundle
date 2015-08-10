@@ -24,7 +24,7 @@ services:
             - { name: twig.extension }
 
 
-    kernerl.listeners.onehydra_redirect_listener:
+    kernel.listeners.onehydra_redirect_listener:
         class: %amara_one_hydra.onehydra_redirect_listener.class%
         calls:
             - [setPageManager, [@onehydra_pagemanager]]
