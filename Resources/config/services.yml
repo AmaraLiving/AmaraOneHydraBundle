@@ -1,7 +1,7 @@
 parameters:
      amara_one_hydra.pagemanager.class: Amara\Bundle\OneHydraBundle\Service\PageManager
      amara_one_hydra.twig_ext.class: Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension
-     amara_one_hydra.onehydra_redirect_listener.class: Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension
+     amara_one_hydra.onehydra_redirect_listener.class: Amara\Bundle\OneHydraBundle\EventListener\OneHydraRedirectListener
      amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
 
 services:
