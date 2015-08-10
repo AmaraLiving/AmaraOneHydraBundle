@@ -33,7 +33,6 @@ class AmaraOneHydraExtension extends ConfigurableExtension
 			$container->setParameter('amara_one_hydra.dateinterval', $mergedConfig['dateinterval']);
 		}
 
-
 		if (array_key_exists('programs', $mergedConfig)) {
 			$container->setParameter('amara_one_hydra.programs', $mergedConfig['programs']);
 		}
@@ -46,5 +45,10 @@ class AmaraOneHydraExtension extends ConfigurableExtension
 			$container->setParameter('amara_one_hydra.defaultProgramId', $mergedConfig['defaultProgramId']);
 		}
 
+		if (array_key_exists('program_solver_strategy', $mergedConfig)) {
+			$container->setParameter('amara_one_hydra.program_solver_strategy', $mergedConfig['program_solver_strategy']);
+		}
+
+	
 	}
 }

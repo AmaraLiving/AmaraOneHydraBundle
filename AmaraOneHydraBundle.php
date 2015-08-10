@@ -3,6 +3,7 @@
 namespace Amara\Bundle\OneHydraBundle;
 
 use Amara\Bundle\OneHydraBundle\DependencyInjection\Compiler\ProxyPass;
+use Amara\Bundle\OneHydraBundle\DependencyInjection\Compiler\ProgramSolverStrategyPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -12,5 +13,6 @@ class AmaraOneHydraBundle extends Bundle
 		parent::build($container);
 
 		$container->addCompilerPass(new ProxyPass());
+		$container->addCompilerPass(new ProgramSolverStrategyPass());
 	}
 }

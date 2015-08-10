@@ -2,6 +2,7 @@
 namespace Amara\Bundle\OneHydraBundle\Service;
 
 use Amara\Bundle\OneHydraBundle\Proxy\PageProxyInterface;
+use Amara\Bundle\OneHydraBundle\Strategy\ProgramSolverStrategyInterface;
 use Amara\OneHydra\Object\PageObject;
 
 
@@ -16,6 +17,8 @@ class PageManager {
 	/** @var PageProxyInterface */
 	private $pageProxy;
 
+	/** @var ProgramSolverStrategyInterface */
+	private $programIdSolverStrategy;
 
 	/**
 	 * @param PageProxyInterface $pageProxy
@@ -25,13 +28,20 @@ class PageManager {
 	}
 
 	/**
+	 * @param ProgramSolverStrategyInterface $programIdSolverStrategy
+	 */
+	public function setProgramSolverStrategy(ProgramSolverStrategyInterface $programIdSolverStrategy) {
+		$this->programIdSolverStrategy = $programIdSolverStrategy;
+	}	
+
+	/**
 	 * @param PageObject $pageObject
 	 * @param string $programId
 	 */
-	public function addPage(PageObject $pageObject, $programId) {
+	public function addPage(PageObject $pageObject, $programId = null) {
 
 		// Remove the page if already exists (we are getting updated infos)
-		$this->removeIfExists($pageObject->getPageName(), $programId);
+		$this->removeIfExists($pageObject->getPageName(), $this->getProgramId($programId));
 
 		// Page creation
 		$this->pageProxy->addPage($pageObject, $programId);
@@ -41,8 +51,8 @@ class PageManager {
 	 * @param string $pageName
 	 * @param string $programId
 	 */
-	public function removeIfExists($pageName, $programId) {
-		$this->pageProxy->removeIfExists($pageName, $programId);
+	public function removeIfExists($pageName, $programId = null) {
+		$this->pageProxy->removeIfExists($pageName, $this->getProgramId($programId));
 	}
 
 	/**
@@ -50,7 +60,22 @@ class PageManager {
 	 * @param string $programId
 	 * @return array|bool
 	 */
-	public function getPage($pageName, $programId) {
-		return $this->pageProxy->getPage($pageName, $programId);
+	public function getPage($pageName, $programId = null) {
+		return $this->pageProxy->getPage($pageName, $this->getProgramId($programId));
 	}
+
+	/**
+	 * @param string $programId
+	 * @return string
+	 */
+	public function getProgramId($programId) {
+		if (is_null($programId)) {
+			if ($this->programIdSolverStrategy instanceof ProgramSolverStrategyInterface) {
+				return $this->programIdSolverStrategy->getProgramId();
+			}
+		} else {
+			return $programId;
+		}
+	}
+
 }
