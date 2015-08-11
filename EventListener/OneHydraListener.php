@@ -4,8 +4,9 @@ namespace Amara\Bundle\OneHydraBundle\EventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
+use Amara\Bundle\OneHydraBundle\State\CurrentPageState;
 
-class OneHydraRedirectListener {
+class OneHydraListener {
 
 	/**
 	 * @var PageManager
@@ -13,10 +14,22 @@ class OneHydraRedirectListener {
 	private $pageManager;
 
 	/**
+	 * @var CurrentPageState
+	 */
+	private $currentPageState;
+
+	/**
 	 * @param PageManager $pageManager
 	 */
 	public function setPageManager($pageManager) {
 		$this->pageManager = $pageManager;
+	}
+
+	/**
+	 * @param CurrentPageState $currentPageState
+	 */
+	public function setCurrentPageState($currentPageState) {
+		$this->currentPageState = $currentPageState;
 	}
 
 	/**
@@ -31,6 +44,8 @@ class OneHydraRedirectListener {
 			
 			if (in_array($pageObject->getRedirectCode(), [301, 302])) {
 				$event->setResponse(new RedirectResponse($pageObject->getRedirectUrl(), $pageObject->getRedirectCode()));
+			} else {
+				$currentPageState->setPage($pageObject);
 			}
 		}
 	}

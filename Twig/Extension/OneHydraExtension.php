@@ -60,7 +60,7 @@ class OneHydraExtension extends \Twig_Extension {
 		if ($oneHydraPage = $this->pageManager->getPage($uri, $programId)) {
 			$pageObject = $oneHydraPage->getPageObject();
 
-			$methodName = 'get' . ucwords(strtoLower($key));
+			$methodName = 'get' . ucwords(strtolower($key));
 
 			if (method_exists($pageObject, $methodName)) {
 				return $headContent->$methodName();
