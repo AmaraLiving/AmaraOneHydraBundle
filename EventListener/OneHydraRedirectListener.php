@@ -24,9 +24,9 @@ class OneHydraRedirectListener {
 	 */
 	public function onKernelRequest(GetResponseEvent $event) {
 		$request = $event->getRequest();
-		$pathInfo = $request->getPathInfo();
+		$uri = $request->getRequestUri();
 
-		if ($oneHydraPage = $this->pageManager->getPage($pathInfo)) {
+		if ($oneHydraPage = $this->pageManager->getPage($uri)) {
 			$pageObject = $oneHydraPage->getPageObject();
 			
 			if (in_array($pageObject->getRedirectCode(), [301, 302])) {

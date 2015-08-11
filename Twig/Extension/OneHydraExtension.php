@@ -51,20 +51,19 @@ class OneHydraExtension extends \Twig_Extension {
 	/**
 	 * @param string $key
 	 * @param string $defaultValue
-	 * @param string $programId optional
 	 * @return string
 	 */
-	public function getOneHydraHeadContent($key, $defaultValue, $programId = null) {
+	public function getOneHydraHeadContent($key, $programId, $defaultValue) {
 		$request = $this->requestStack->getCurrentRequest();
-		$pathInfo =  $request->getPathInfo();
+		$uri =  $request->getRequestUri();
 
-		if ($oneHydraPage = $this->pageManager->getPage($pathInfo, $programId)) {
+		if ($oneHydraPage = $this->pageManager->getPage($uri, $programId)) {
 			$pageObject = $oneHydraPage->getPageObject();
 
 			$methodName = 'get' . ucwords(strtoLower($key));
 
 			if (method_exists($pageObject, $methodName)) {
-				return $pageObject->$methodName();
+				return $headContent->$methodName();
 			}
 
 		} else {

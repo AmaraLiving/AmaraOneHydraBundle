@@ -23,8 +23,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 	 */
 	protected function configure() {
 
-		$defaultProgramId = $input->getOption('defaultProgramId');
-
 		$this
 			->setName('onehydra:fetch')
 			->setDescription('Fetchs all the pages infos from OneHydra')
@@ -42,11 +40,11 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 				'If is set all the pages are requested (UP TO 5000)'
 			)
 			->addOption(
-				'host',
+				'programId',
 				null,
 				InputOption::VALUE_OPTIONAL,
 				'The program to use',
-				$defaultProgramId
+				null
 			);
 	}
 
@@ -69,6 +67,15 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 
 		$reqParams['count'] = $input->getOption('count');
 
+		if (is_null($input->getOption('programId'))) {
+			if (!$container->hasParameter('amara_one_hydra.defaultProgramId')) {
+				throw new \InvalidArgumentException('You need to specify a programId or set amara_one_hydra.defaultProgramId');
+			}
+
+			$input->setOption('programId', $container->getParameter('amara_one_hydra.defaultProgramId'));
+		}
+
+
 		if(!$input->getOption('all')) {
 			$since = new \DateTime();
 			$since->sub(new \DateInterval($container->getParameter('amara_one_hydra.dateinterval')));
@@ -85,17 +92,17 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 
 		$programs = $container->getParameter('amara_one_hydra.programs');
 
-		// TODO change all 'host' refs into 'program'
-		$host = $input->getOption('host');
+		// TODO change all 'programId' refs into 'program'
+		$programId = $input->getOption('programId');
 
-		$oneHydraParams = $programs[$host];
+		$oneHydraParams = $programs[$programId];
 
 		$api->setAuthToken($oneHydraParams['authToken']);
 		//$api->setBaseUrl($endpoint);
 
 
 		$output->writeln('');
-		$output->writeln("<comment>OneHydra host: {$input->getOption('host')} ({$api->getBaseUrl()})</comment>");
+		$output->writeln("<comment>OneHydra programId: {$input->getOption('programId')} ({$api->getBaseUrl()})</comment>");
 		$output->writeln('');
 
 		$requestPages = $requestBuilder->setService(Api::EP_PAGES);
@@ -127,7 +134,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
 
-			$pageManager->addPage($pageObject, $host);
+			$pageManager->addPage($pageObject, $programId);
 
 			$progress->advance();
 		}
