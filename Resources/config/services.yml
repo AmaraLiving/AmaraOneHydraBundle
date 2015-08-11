@@ -2,6 +2,7 @@ parameters:
      amara_one_hydra.pagemanager.class: Amara\Bundle\OneHydraBundle\Service\PageManager
      amara_one_hydra.twig_ext.class: Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension
      amara_one_hydra.redirect_listener.class: Amara\Bundle\OneHydraBundle\EventListener\OneHydraRedirectListener
+     amara_one_hydra.suggested_page_listener.class: Amara\Bundle\OneHydraBundle\EventListener\OneHydraSuggestedPageListener
      amara_one_hydra.program_solver_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\EmptyProgramSolverStrategy
      amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
 
@@ -35,3 +36,10 @@ services:
             - [setPageManager, [@onehydra_pagemanager]]
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+
+    kernel.listeners.onehydra_suggested_page_listener:
+        class: %amara_one_hydra.suggested_page_listener.class%
+        calls:
+            - [setPageManager, [@onehydra_pagemanager]]
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse}
