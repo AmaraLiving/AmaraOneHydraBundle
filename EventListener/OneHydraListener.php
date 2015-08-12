@@ -37,7 +37,7 @@ class OneHydraListener {
 	 */
 	public function onKernelRequest(GetResponseEvent $event) {
 		$request = $event->getRequest();
-		$uri = $request->getRequestUri();
+		$uri = $request->getUri();
 
 		if ($oneHydraPage = $this->pageManager->getPage($uri)) {
 			$pageObject = $oneHydraPage->getPageObject();
@@ -45,7 +45,7 @@ class OneHydraListener {
 			if (in_array($pageObject->getRedirectCode(), [301, 302])) {
 				$event->setResponse(new RedirectResponse($pageObject->getRedirectUrl(), $pageObject->getRedirectCode()));
 			} else {
-				$currentPageState->setPage($pageObject);
+				$this->currentPageState->setPage($pageObject);
 			}
 		}
 	}

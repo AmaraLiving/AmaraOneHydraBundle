@@ -37,5 +37,6 @@ services:
         class: %amara_one_hydra.listener.class%
         calls:
             - [setPageManager, [@onehydra_pagemanager]]
+            - [setCurrentPageState, [@onehydra_current_page_state]]
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
