@@ -54,9 +54,9 @@ class OneHydraExtension extends \Twig_Extension {
 	 * @param string $programId optional
 	 * @return string
 	 */
-	public function getOneHydraHeadContent($key, $defaultValue, $programId) {
+	public function getOneHydraHeadContent($key, $defaultValue, $programId = null) {
 		$request = $this->requestStack->getCurrentRequest();
-		$uri =  $request->getRequestUri();
+		$uri =  $ryequest->getRequestUri();
 
 		if ($oneHydraPage = $this->pageManager->getPage($uri, $programId)) {
 			$pageObject = $oneHydraPage->getPageObject();
