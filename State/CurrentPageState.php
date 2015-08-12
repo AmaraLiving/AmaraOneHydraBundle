@@ -1,7 +1,7 @@
 <?php
 namespace Amara\Bundle\OneHydraBundle\State;
 
-use Amara\Bundle\OneHydraBundle\Object\PageObject;
+use Amara\OneHydra\Object\PageObject;
 
 class CurrentPageState {
 
