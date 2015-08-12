@@ -56,7 +56,7 @@ class OneHydraExtension extends \Twig_Extension {
 	 */
 	public function getOneHydraHeadContent($key, $defaultValue, $programId = null) {
 		$request = $this->requestStack->getCurrentRequest();
-		$uri =  $ryequest->getRequestUri();
+		$uri =  $request->getRequestUri();
 
 		if ($oneHydraPage = $this->pageManager->getPage($uri, $programId)) {
 			$pageObject = $oneHydraPage->getPageObject();
