@@ -28,15 +28,27 @@ class OneHydraListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->request = new Request();
 	}
 
-
+	/**
+	 * @cover Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener::onKernelRequester
+	 */
 	public function testRedirectIsCatched() {
 		$pageEntity = $this->getPageRedirectMock();
 		$pageManager = $this->getPageManagerMock($pageEntity);
+		$event = $this->getEventMock();
+
+		$event->expects($this->once())
+			->method('setResponse')
+			->willReturn($this->response);
+
 
 		$this->listener->setPageManager($pageManager);
-		$this->listener->onKernelRequest($this->getEventMock());
+		$this->listener->onKernelRequest($event);
+
 	}
 
+	/**
+	 * @cover Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener::onKernelRequester
+	 */
 	public function testNoRedirect() {
 		$pageEntity = $this->getPage200Mock();
 		$pageManager = $this->getPageManagerMock($pageEntity);
@@ -45,6 +57,9 @@ class OneHydraListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->listener->setPageManager($pageManager);
 		$this->listener->setCurrentPageState($currenPageState);
 		$this->listener->onKernelRequest($this->getEventMock());
+
+
+
 	}
 
 	private function getEventMock() {

@@ -5,6 +5,7 @@ parameters:
      amara_one_hydra.program_solver_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\EmptyProgramSolverStrategy
      amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
      amara_one_hydra.current_page_state.class: Amara\Bundle\OneHydraBundle\State\CurrentPageState
+     amara_one_hydra.page_entity.class: Amara\Bundle\OneHydraBundle\Entity\OneHydraPage
 
 services:
     onehydra_pagemanager:
@@ -13,10 +14,16 @@ services:
             - [setPageProxy, [@onehydra_pageproxy]]
             - [setProgramSolverStrategy, [@onehydra_program_solver_strategy]]
 
+
+    onehydra_page_entity:
+         class: %amara_one_hydra.page_entity.class%
+         scope: prototype
+
     onehydra_pageproxy:
         class: %amara_one_hydra.pageproxy%
         calls:
             - [setEntityManager, [@doctrine.orm.entity_manager]]
+            - [setContainer, [@service_container]]
 
     onehydra_current_page_state:
         class: %amara_one_hydra.current_page_state.class%
@@ -26,9 +33,8 @@ services:
 
     twig.onehydra_extension:
         class: %amara_one_hydra.twig_ext.class%
-        arguments: [@request_stack]
         calls:
-            - [setPageManager, [@onehydra_pagemanager]]
+            - [setCurrentPageState, [@onehydra_current_page_state]]
         tags: 
             - { name: twig.extension }
 

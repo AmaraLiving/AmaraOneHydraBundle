@@ -3,33 +3,21 @@
 namespace Amara\Bundle\OneHydraBundle\Twig\Extension;
 
 
-use Amara\Bundle\OneHydraBundle\Service\PageManager;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Amara\Bundle\OneHydraBundle\State\CurrentPageState;
 
 class OneHydraExtension extends \Twig_Extension {
-	
-	/**
-	 * @var PageManager
-	 */
-	private $pageManager;
 
 	/**
-	 * @var RequestStack
+	 * @var CurrentPageState
 	 */
-	private $requestStack;
+	private $currentPageState;
+
 
 	/**
-	 * @var RequestStack
+	 * @param CurrentPageState $currentPageState
 	 */
-	public function __construct(RequestStack $requestStack) {
-		$this->requestStack = $requestStack;
-	}
-
-	/**
-	 * @param PageManager $pageManager
-	 */
-	public function setPageManager($pageManager) {
-		$this->pageManager = $pageManager;
+	public function setCurrentPageState($currentPageState) {
+		$this->currentPageState = $currentPageState;
 	}
 
 	/**
@@ -51,20 +39,18 @@ class OneHydraExtension extends \Twig_Extension {
 	/**
 	 * @param string $key
 	 * @param string $defaultValue
-	 * @param string $programId optional
 	 * @return string
 	 */
-	public function getOneHydraHeadContent($key, $defaultValue, $programId = null) {
-		$request = $this->requestStack->getCurrentRequest();
-		$uri =  $request->getRequestUri();
+	public function getOneHydraHeadContent($key, $defaultValue) {
 
-		if ($oneHydraPage = $this->pageManager->getPage($uri, $programId)) {
-			$pageObject = $oneHydraPage->getPageObject();
+		if ($pageObject = $this->currentPageState->getPage()) {
 
 			$methodName = 'get' . ucwords(strtolower($key));
 
 			if (method_exists($pageObject, $methodName)) {
-				return $pageObject->$methodName();
+				$value = $pageObject->$methodName();
+
+				return (!is_null($value) ? ($value) : $defaultValue);
 			}
 
 		} else {

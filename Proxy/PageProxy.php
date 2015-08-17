@@ -11,17 +11,28 @@ use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\Repository\OneHydraPageRepository;
 use Amara\OneHydra\Object\PageObject;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\DependencyInjection\Container;
 
 class PageProxy implements PageProxyInterface {
 
 	/** @var EntityManager */
 	public $entityManager;
 
+	/** @var Container */
+	public $container;
+
 	/**
 	 * @param EntityManager $entityManager
 	 */
-	public function setEntityManager($entityManager) {
+	public function setEntityManager(EntityManager $entityManager) {
 		$this->entityManager = $entityManager;
+	}
+
+	/**
+	 * @param Container $container
+	 */
+	public function setContainer(Container $container) {
+		$this->container = $container;
 	}
 
 	/**
@@ -69,9 +80,6 @@ class PageProxy implements PageProxyInterface {
 	public function addPage(PageObject $pageObject, $programId) {
 		// Persist the object
 		$this->persistPageObject($pageObject, $programId);
-
-		// Post creation operations
-		$this->postCreation($pageObject);
 	}
 
 	/**
@@ -79,7 +87,7 @@ class PageProxy implements PageProxyInterface {
 	 * @param string $programId
 	 */
 	public function persistPageObject(PageObject $pageObject, $programId) {
-		$ohPage = new OneHydraPage();
+		$ohPage = $this->getOneHydraPage();
 		$ohPage->setPageName($pageObject->getPageName());
 		$ohPage->setPageObject($pageObject);
 		$ohPage->setProgramId($programId);
@@ -87,6 +95,13 @@ class PageProxy implements PageProxyInterface {
 
 		$this->entityManager->persist($ohPage);
 		$this->entityManager->flush();
+	}
+
+	/**
+	 * @return OneHydraPage
+	 */
+	public function getOneHydraPage() {
+		return $this->container->get('onehydra_page_entity');
 	}
 
 	/**

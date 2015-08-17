@@ -45,6 +45,10 @@ class PageManager {
 
 		// Page creation
 		$this->pageProxy->addPage($pageObject, $programId);
+
+		// Post creation operations
+		$this->pageProxy->postCreation($pageObject);
+
 	}
 
 	/**
