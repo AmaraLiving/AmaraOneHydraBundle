@@ -60,7 +60,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 	 * {@inheritdoc}
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		die;
 		$container = $this->getContainer();
 		$oneHydraContainer = $this->getOneHydraContainer();
 
