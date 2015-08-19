@@ -60,6 +60,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 	 * {@inheritdoc}
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
+		die;
 		$container = $this->getContainer();
 		$oneHydraContainer = $this->getOneHydraContainer();
 
@@ -126,7 +127,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 
 		$requestBuilder->setService(Api::EP_PAGE);
 
-		/** @var \Amara\OneHydra\Service\PageManager $pageManager */
+		/** @var \Amara\Bundle\OneHydraBundle\Service\PageManager $pageManager */
 		$pageManager = $container->get('onehydra_pagemanager');
 
 		foreach ($pages as $page) {
@@ -134,7 +135,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
 
-			$pageManager->addPage($pageObject, $programId);
+			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 
 			$progress->advance();
 		}
