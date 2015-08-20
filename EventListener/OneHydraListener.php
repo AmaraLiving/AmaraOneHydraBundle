@@ -36,16 +36,21 @@ class OneHydraListener {
 	 * @param GetResponseEvent $event
 	 */
 	public function onKernelRequest(GetResponseEvent $event) {
-		$request = $event->getRequest();
-		$uri = $request->getUri();
 
-		if ($oneHydraPage = $this->pageManager->getPage($uri)) {
-			$pageObject = $oneHydraPage->getPageObject();
-			
-			if (in_array($pageObject->getRedirectCode(), [301, 302])) {
-				$event->setResponse(new RedirectResponse($pageObject->getRedirectUrl(), $pageObject->getRedirectCode()));
-			} else {
-				$this->currentPageState->setPage($pageObject);
+		if ($event->isMasterRequest()) {
+			$request = $event->getRequest();
+			$uri = $request->getUri();
+
+			if (false !== strpos($request->headers->get('accept'), 'text/html')) {
+				if ($oneHydraPage = $this->pageManager->getPage($uri)) {
+					$pageObject = $oneHydraPage->getPageObject();
+
+					if (in_array($pageObject->getRedirectCode(), [301, 302])) {
+						$event->setResponse(new RedirectResponse($pageObject->getRedirectUrl(), $pageObject->getRedirectCode()));
+					} else {
+						$this->currentPageState->setPage($pageObject);
+					}
+				}
 			}
 		}
 	}
