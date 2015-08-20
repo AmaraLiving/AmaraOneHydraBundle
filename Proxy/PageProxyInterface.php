@@ -26,6 +26,7 @@ interface PageProxyInterface {
 
 	/**
 	 * @param PageObject $pageObject
+	 * @param string $programId
 	 */
-	public function postCreation(PageObject $pageObject);
+	public function postCreation(PageObject $pageObject, $programId);
 }
