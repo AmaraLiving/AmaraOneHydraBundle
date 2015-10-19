@@ -21,6 +21,17 @@ class OneHydraExtension extends \Twig_Extension {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSuggested() {
+		if ($pageObject = $this->currentPageState->getPage()) {
+			return $pageObject->isSuggested();
+		}
+
+		return false;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getName() {
@@ -32,7 +43,8 @@ class OneHydraExtension extends \Twig_Extension {
 	 */
 	public function getFunctions() {
 		return [
-			'oneHydraHeadContent' => new \Twig_Function_Method($this, 'getOneHydraHeadContent')
+			'oneHydraHeadContent' => new \Twig_Function_Method($this, 'getOneHydraHeadContent'),
+			'oneHydraIsSuggestedPage' => new \Twig_Function_Method($this, 'isSuggested')
 		];
 	}
 
