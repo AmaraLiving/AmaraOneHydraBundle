@@ -30,11 +30,12 @@ services:
 
     onehydra_program_solver_strategy:
         class: %amara_one_hydra.program_solver_strategy.class%
-
+        
     twig.onehydra_extension:
         class: %amara_one_hydra.twig_ext.class%
         calls:
-            - [setCurrentPageState, [@onehydra_current_page_state]]
+            - [setRequest, [@request_stack]]
+            - [setPageManager, [@onehydra_pagemanager]]
         tags: 
             - { name: twig.extension }
 

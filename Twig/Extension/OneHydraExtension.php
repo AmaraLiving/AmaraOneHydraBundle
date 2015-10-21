@@ -3,28 +3,51 @@
 namespace Amara\Bundle\OneHydraBundle\Twig\Extension;
 
 
-use Amara\Bundle\OneHydraBundle\State\CurrentPageState;
+use Amara\Bundle\OneHydraBundle\Service\PageManager;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class OneHydraExtension extends \Twig_Extension {
 
 	/**
-	 * @var CurrentPageState
+	 * @var Request
 	 */
-	private $currentPageState;
+	private $request;
+
+	/**
+	 * @var PageManager
+	 */
+	private $pageManager;
 
 
 	/**
-	 * @param CurrentPageState $currentPageState
+	 * @param RequestStack $request
 	 */
-	public function setCurrentPageState($currentPageState) {
-		$this->currentPageState = $currentPageState;
+	public function setRequest(RequestStack $request) {
+		$this->request = $request->getCurrentRequest();
+	}
+
+
+	/**
+	 * @param PageManager $pageManager
+	 */
+	public function setPageManager(PageManager $pageManager) {
+		$this->pageManager = $pageManager;
 	}
 
 	/**
+	 * @param Request $request
 	 * @return bool
 	 */
-	public function isSuggested() {
-		if ($pageObject = $this->currentPageState->getPage()) {
+	public function isSuggested($request = null) {
+
+		if (is_null($request)) {
+			$request = $this->request;
+		}
+
+		if ($page = $this->pageManager->getPageByRequest($request)) {
+			$pageObject = $page->getPageObject();
+
 			return $pageObject->isSuggested();
 		}
 
@@ -51,20 +74,28 @@ class OneHydraExtension extends \Twig_Extension {
 	/**
 	 * @param string $key
 	 * @param string $defaultValue
+	 * @param Request $request
 	 * @return string
 	 */
-	public function getOneHydraHeadContent($key, $defaultValue) {
+	public function getOneHydraHeadContent($key, $defaultValue, $request = null) {
 
-		if ($pageObject = $this->currentPageState->getPage()) {
+		if (is_null($request)) {
+			$request = $this->request;
+		}
 
-			$methodName = 'get' . ucwords(strtolower($key));
+		if ($page = $this->pageManager->getPageByRequest($request)) {
 
-			if (method_exists($pageObject, $methodName)) {
-				$value = $pageObject->$methodName();
+			if ($pageObject = $page->getPageObject()) {
 
-				return (!is_null($value) ? ($value) : $defaultValue);
+				$methodName = 'get' . ucwords(strtolower($key));
+
+				if (method_exists($pageObject, $methodName)) {
+					$value = $pageObject->$methodName();
+
+					return (!is_null($value) ? ($value) : $defaultValue);
+				}
+
 			}
-
 		} else {
 			return $defaultValue;
 		}

@@ -4,14 +4,9 @@ namespace Amara\Bundle\OneHydraBundle\Service;
 use Amara\Bundle\OneHydraBundle\Proxy\PageProxyInterface;
 use Amara\Bundle\OneHydraBundle\Strategy\ProgramSolverStrategyInterface;
 use Amara\OneHydra\Object\PageObject;
+use Symfony\Component\HttpFoundation\Request;
 
 
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 13/07/15
- * Time: 10:31
- */
 class PageManager {
 
 	/** @var PageProxyInterface */
@@ -19,6 +14,12 @@ class PageManager {
 
 	/** @var ProgramSolverStrategyInterface */
 	private $programIdSolverStrategy;
+
+	/** @var array */
+	private $cache = [];
+
+	/** @var string */
+	public $requestAttributeKey = '_one_hydra_name';
 
 	/**
 	 * @param PageProxyInterface $pageProxy
@@ -48,7 +49,6 @@ class PageManager {
 
 		// Post creation operations
 		$this->pageProxy->postCreation($pageObject, $programId);
-
 	}
 
 	/**
@@ -59,13 +59,37 @@ class PageManager {
 		$this->pageProxy->removeIfExists($pageName, $this->getProgramId($programId));
 	}
 
+
 	/**
 	 * @param string $pageName
 	 * @param string $programId
 	 * @return array|bool
 	 */
 	public function getPage($pageName, $programId = null) {
-		return $this->pageProxy->getPage($pageName, $this->getProgramId($programId));
+		if (in_array($pageName, $this->cache)) {
+			return $this->cache[$pageName];
+		}
+
+		$page = $this->pageProxy->getPage($pageName, $this->getProgramId($programId));
+
+		if ($page) {
+			$this->cache[$pageName] = $page;
+		}
+
+		return $page;
+	}
+
+	/**
+	 * @param Request $request
+	 * @param string $programId
+	 * @return array|bool
+	 */
+	public function getPageByRequest(Request $request, $programId = null) {
+		if ($pageName = $request->attributes->get($this->requestAttributeKey, null)) {
+			return $this->getPage($pageName, $programId);
+		}
+
+		return false;
 	}
 
 	/**
