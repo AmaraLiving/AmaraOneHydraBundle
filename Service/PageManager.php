@@ -3,6 +3,7 @@ namespace Amara\Bundle\OneHydraBundle\Service;
 
 use Amara\Bundle\OneHydraBundle\Proxy\PageProxyInterface;
 use Amara\Bundle\OneHydraBundle\Strategy\ProgramSolverStrategyInterface;
+use Amara\Bundle\OneHydraBundle\Strategy\PageNameTransformStrategyInterface;
 use Amara\OneHydra\Object\PageObject;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,6 +21,9 @@ class PageManager {
 
 	/** @var string */
 	public $requestAttributeKey = '_one_hydra_name';
+	
+	/** @var PageNameTransformStrategyInterface */
+	public $pageNameTransformStrategy;
 
 	/**
 	 * @param PageProxyInterface $pageProxy
@@ -34,6 +38,13 @@ class PageManager {
 	public function setProgramSolverStrategy(ProgramSolverStrategyInterface $programIdSolverStrategy) {
 		$this->programIdSolverStrategy = $programIdSolverStrategy;
 	}	
+
+	/**
+	 * @param PageNameTransformStrategyInterface $pageNameTransformStrategy
+	 */
+	public function setProgramSolverStrategy(PageNameTransformStrategyInterface $pageNameTransformStrategy) {
+		$this->pageNameTransformStrategy = $pageNameTransformStrategy;
+	}
 
 	/**
 	 * @param PageObject $pageObject
@@ -59,13 +70,15 @@ class PageManager {
 		$this->pageProxy->removeIfExists($pageName, $this->getProgramId($programId));
 	}
 
-
 	/**
-	 * @param string $pageName
+	 * @param string $url
 	 * @param string $programId
 	 * @return array|bool
 	 */
-	public function getPage($pageName, $programId = null) {
+	public function getPage($url, $programId = null) {
+
+		$pageName = $this->pageNameTransformStrategy->getPageName($url);
+
 		if (in_array($pageName, $this->cache)) {
 			return $this->cache[$pageName];
 		}

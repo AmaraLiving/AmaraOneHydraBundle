@@ -100,7 +100,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		$api->setAuthToken($oneHydraParams['authToken']);
 		//$api->setBaseUrl($endpoint);
 
-
 		$output->writeln('');
 		$output->writeln("<comment>OneHydra programId: {$input->getOption('programId')} ({$api->getBaseUrl()})</comment>");
 		$output->writeln('');
@@ -110,7 +109,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		$resultPages = $api->execute($requestPages->setParams($reqParams)->build())->getBody();
 
 		$pages = $resultPages->Pages->PageUrls;
-
 
 		// List of all pages
 		$output->writeln('<info>* Get the pages</info>');
@@ -129,10 +127,16 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		/** @var \Amara\Bundle\OneHydraBundle\Service\PageManager $pageManager */
 		$pageManager = $container->get('onehydra_pagemanager');
 
+		/** @var \Amara\Bundle\OneHydraBundle\Strategy\DefaultPageNameTransformStrategy $pageNameTransform */
+		$pageNameTransform = $container->get('onehydra_pagename_transform_strategy');
+
 		foreach ($pages as $page) {
 
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
+
+			// Trasform the page name
+			$pageObject->setPageName($pageNameTransform->getPageName($pageObject->getPageName()));
 
 			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 

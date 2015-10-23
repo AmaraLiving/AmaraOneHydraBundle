@@ -49,6 +49,9 @@ class AmaraOneHydraExtension extends ConfigurableExtension
 			$container->setParameter('amara_one_hydra.custom_program_solver_strategy', $mergedConfig['custom_program_solver_strategy']);
 		}
 
+		if (array_key_exists('custom_pagename_transform_strategy', $mergedConfig)) {
+			$container->setParameter('amara_one_hydra.custom_pagename_transform_strategy', $mergedConfig['custom_pagename_transform_strategy']);
+		}
 	
 	}
 }
