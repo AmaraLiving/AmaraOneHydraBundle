@@ -14,7 +14,7 @@ services:
         calls:
             - [setPageProxy, [@onehydra_pageproxy]]
             - [setProgramSolverStrategy, [@onehydra_program_solver_strategy]]
-
+            - [setPageNameTransformStrategy, [@onehydra_pagename_transform_strategy]]
 
     onehydra_page_entity:
          class: %amara_one_hydra.page_entity.class%

@@ -42,7 +42,7 @@ class PageManager {
 	/**
 	 * @param PageNameTransformStrategyInterface $pageNameTransformStrategy
 	 */
-	public function setProgramSolverStrategy(PageNameTransformStrategyInterface $pageNameTransformStrategy) {
+	public function setPageNameTransformStrategy(PageNameTransformStrategyInterface $pageNameTransformStrategy) {
 		$this->pageNameTransformStrategy = $pageNameTransformStrategy;
 	}
 
