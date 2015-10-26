@@ -6,7 +6,7 @@ parameters:
      amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
      amara_one_hydra.current_page_state.class: Amara\Bundle\OneHydraBundle\State\CurrentPageState
      amara_one_hydra.page_entity.class: Amara\Bundle\OneHydraBundle\Entity\OneHydraPage
-     amara_one_hydra.custom_pagename_transform_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\DefaultPageNameTransformStrategy
+     amara_one_hydra.pagename_transform_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\DefaultPageNameTransformStrategy
 
 services:
     onehydra_pagemanager:
@@ -33,7 +33,7 @@ services:
         class: %amara_one_hydra.program_solver_strategy.class%
 
     onehydra_pagename_transform_strategy:
-        class: %amara_one_hydra.custom_pagename_transform_strategy.class%
+        class: %amara_one_hydra.pagename_transform_strategy.class%
 
     twig.onehydra_extension:
         class: %amara_one_hydra.twig_ext.class%
