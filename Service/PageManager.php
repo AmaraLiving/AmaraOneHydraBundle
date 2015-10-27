@@ -87,7 +87,7 @@ class PageManager {
 	 */
 	public function getPageByRequest(Request $request, $programId = null) {
 		if ($pageName = $request->attributes->get($this->requestAttributeKey, null)) {
-			return $this->getPage($pageName, $programId, $request);
+			return $this->getPage($pageName, $programId);
 		}
 
 		return false;
