@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 08/07/15
- * Time: 12:01
- */
-
 namespace Amara\Bundle\OneHydraBundle\Command;
 
 use Amara\OneHydra\Container;
@@ -15,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class OneHydraFetchCommand extends ContainerAwareCommand {
 
@@ -135,8 +129,10 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
 
+			$sf2Request = Request::create($pageObject->getPageName());
+			
 			// Trasform the page name
-			$pageObject->setPageName($pageNameTransform->getPageName($pageObject->getPageName()));
+			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request->getRequestUri()));
 
 			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 

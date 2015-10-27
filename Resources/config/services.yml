@@ -14,7 +14,6 @@ services:
         calls:
             - [setPageProxy, [@onehydra_pageproxy]]
             - [setProgramSolverStrategy, [@onehydra_program_solver_strategy]]
-            - [setPageNameTransformStrategy, [@onehydra_pagename_transform_strategy]]
 
     onehydra_page_entity:
          class: %amara_one_hydra.page_entity.class%
@@ -49,5 +48,6 @@ services:
         calls:
             - [setPageManager, [@onehydra_pagemanager]]
             - [setCurrentPageState, [@onehydra_current_page_state]]
+            - [setPageNameTransformStrategy, [@onehydra_pagename_transform_strategy]]
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
