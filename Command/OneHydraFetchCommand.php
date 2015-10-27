@@ -132,7 +132,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$sf2Request = Request::create($pageObject->getPageName());
 			
 			// Trasform the page name
-			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request->getRequestUri()));
+			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request);
 
 			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 
