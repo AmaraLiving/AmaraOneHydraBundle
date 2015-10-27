@@ -132,7 +132,19 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 			$sf2Request = Request::create($pageObject->getPageName());
 			
 			// Trasform the page name
-			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request);
+			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request));
+
+
+			if (is_array($pageObject->getLinks())) {
+				$links = $pageObject->getLinks();
+				foreach ($links as $keyLink => $valueLink) {
+					foreach ($valueLink->Value as $intenalLinks) {
+						$sf2RequestLink = Request::create($intenalLinks->DestinationUrl);
+						$intenalLinks->DestinationUrl = $pageNameTransform->getPageName($sf2RequestLink);
+					}
+				}
+
+			}
 
 			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 
