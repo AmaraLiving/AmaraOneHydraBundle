@@ -8,6 +8,7 @@
 
 namespace Amara\Bundle\OneHydraBundle\Proxy;
 
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\OneHydra\Object\PageObject;
 
 interface PageProxyInterface {
@@ -15,6 +16,7 @@ interface PageProxyInterface {
 	/**
 	 * @param string $pageName
 	 * @param string $programId
+	 * @return OneHydraPage
 	 */
 	public function getPage($pageName, $programId);
 

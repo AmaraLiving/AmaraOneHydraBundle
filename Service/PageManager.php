@@ -1,6 +1,7 @@
 <?php
 namespace Amara\Bundle\OneHydraBundle\Service;
 
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\Proxy\PageProxyInterface;
 use Amara\Bundle\OneHydraBundle\Strategy\ProgramSolverStrategyInterface;
 use Amara\OneHydra\Object\PageObject;
@@ -61,9 +62,9 @@ class PageManager {
 	}
 
 	/**
-	 * @param string $url
+	 * @param string $pageName
 	 * @param string $programId
-	 * @return array|bool
+	 * @return OneHydraPage|bool
 	 */
 	public function getPage($pageName, $programId = null) {
 
@@ -83,7 +84,7 @@ class PageManager {
 	/**
 	 * @param Request $request
 	 * @param string $programId
-	 * @return array|bool
+	 * @return OneHydraPage|bool
 	 */
 	public function getPageByRequest(Request $request, $programId = null) {
 		if ($pageName = $request->attributes->get($this->requestAttributeKey, null)) {
