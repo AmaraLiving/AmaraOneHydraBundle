@@ -1,24 +1,24 @@
 <?php
 namespace Amara\Bundle\OneHydraBundle\State;
 
-use Amara\OneHydra\Object\PageObject;
+use Amara\OneHydra\Object\PageObjectInterface;
 
 class CurrentPageState {
 
-	/** @var PageObject */
+	/** @var PageObjectInterface */
 	private $page = null;
 
 	/**
-	 * @return PageObject
+	 * @return PageObjectInterface
 	 */
 	public function getPage() {
 		return $this->page;
 	}
 
 	/**
-	 * @param PageObject $page
+	 * @param PageObjectInterface $page
 	 */
-	public function setPage(PageObject $page) {
+	public function setPage(PageObjectInterface $page) {
 		$this->page = $page;
 	}
 }

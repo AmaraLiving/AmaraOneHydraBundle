@@ -35,6 +35,7 @@ class PageManager {
 		$this->programIdSolverStrategy = $programIdSolverStrategy;
 	}	
 
+
 	/**
 	 * @param PageObject $pageObject
 	 * @param string $programId
@@ -59,13 +60,13 @@ class PageManager {
 		$this->pageProxy->removeIfExists($pageName, $this->getProgramId($programId));
 	}
 
-
 	/**
-	 * @param string $pageName
+	 * @param string $url
 	 * @param string $programId
 	 * @return array|bool
 	 */
 	public function getPage($pageName, $programId = null) {
+
 		if (in_array($pageName, $this->cache)) {
 			return $this->cache[$pageName];
 		}

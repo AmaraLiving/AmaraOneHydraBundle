@@ -1,6 +1,7 @@
 <?php
 namespace Amara\Bundle\OneHydraBundle\EventListener;
 
+use Amara\Bundle\OneHydraBundle\Strategy\PageNameTransformStrategyInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
@@ -18,6 +19,9 @@ class OneHydraListener {
 	 */
 	private $currentPageState;
 
+	/** @var PageNameTransformStrategyInterface */
+	public $pageNameTransformStrategy;
+
 	/**
 	 * @param PageManager $pageManager
 	 */
@@ -33,17 +37,25 @@ class OneHydraListener {
 	}
 
 	/**
+	 * @param PageNameTransformStrategyInterface $pageNameTransformStrategy
+	 */
+	public function setPageNameTransformStrategy(PageNameTransformStrategyInterface $pageNameTransformStrategy) {
+		$this->pageNameTransformStrategy = $pageNameTransformStrategy;
+	}
+
+	/**
 	 * @param GetResponseEvent $event
 	 */
 	public function onKernelRequest(GetResponseEvent $event) {
 
 		if ($event->isMasterRequest()) {
 			$request = $event->getRequest();
-			$uri = $request->getUri();
 
 			if (false !== strpos($request->headers->get('accept'), 'text/html')) {
 
-				if ($oneHydraPage = $this->pageManager->getPage($uri)) {
+				$pageName = $this->pageNameTransformStrategy->getPageName($request);
+
+				if ($oneHydraPage = $this->pageManager->getPage($pageName)) {
 					$pageObject = $oneHydraPage->getPageObject();
 
 

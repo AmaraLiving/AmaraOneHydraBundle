@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 08/07/15
- * Time: 12:01
- */
-
 namespace Amara\Bundle\OneHydraBundle\Command;
 
 use Amara\OneHydra\Container;
@@ -15,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class OneHydraFetchCommand extends ContainerAwareCommand {
 
@@ -100,7 +94,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		$api->setAuthToken($oneHydraParams['authToken']);
 		//$api->setBaseUrl($endpoint);
 
-
 		$output->writeln('');
 		$output->writeln("<comment>OneHydra programId: {$input->getOption('programId')} ({$api->getBaseUrl()})</comment>");
 		$output->writeln('');
@@ -110,7 +103,6 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		$resultPages = $api->execute($requestPages->setParams($reqParams)->build())->getBody();
 
 		$pages = $resultPages->Pages->PageUrls;
-
 
 		// List of all pages
 		$output->writeln('<info>* Get the pages</info>');
@@ -129,10 +121,30 @@ class OneHydraFetchCommand extends ContainerAwareCommand {
 		/** @var \Amara\Bundle\OneHydraBundle\Service\PageManager $pageManager */
 		$pageManager = $container->get('onehydra_pagemanager');
 
+		/** @var \Amara\Bundle\OneHydraBundle\Strategy\DefaultPageNameTransformStrategy $pageNameTransform */
+		$pageNameTransform = $container->get('onehydra_pagename_transform_strategy');
+
 		foreach ($pages as $page) {
 
 			$requestBuilder->setParams(['url' => $page]);
 			$pageObject= $objectFactory->makeFromResponse($api->execute($requestBuilder->build(false)), 'page', ['pageName' => $page]);
+
+			$sf2Request = Request::create($pageObject->getPageName());
+			
+			// Trasform the page name
+			$pageObject->setPageName($pageNameTransform->getPageName($sf2Request));
+
+
+			if (is_array($pageObject->getLinks())) {
+				$links = $pageObject->getLinks();
+				foreach ($links as $keyLink => $valueLink) {
+					foreach ($valueLink->Value as $intenalLinks) {
+						$sf2RequestLink = Request::create($intenalLinks->DestinationUrl);
+						$intenalLinks->DestinationUrl = $pageNameTransform->getPageName($sf2RequestLink);
+					}
+				}
+
+			}
 
 			$pageManager->addPage($pageObject, $oneHydraParams['programId']);
 
