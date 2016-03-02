@@ -6,6 +6,7 @@ namespace Amara\Bundle\OneHydraBundle\Twig\Extension;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig_SimpleFunction;
 
 class OneHydraExtension extends \Twig_Extension {
 
@@ -66,8 +67,8 @@ class OneHydraExtension extends \Twig_Extension {
 	 */
 	public function getFunctions() {
 		return [
-			'oneHydraHeadContent' => new \Twig_Function_Method($this, 'getOneHydraHeadContent'),
-			'oneHydraIsSuggestedPage' => new \Twig_Function_Method($this, 'isSuggested')
+			'oneHydraHeadContent' => new Twig_SimpleFunction('oneHydraHeadContent', [$this, 'getOneHydraHeadContent']),
+			'oneHydraIsSuggestedPage' => new Twig_SimpleFunction('oneHydraIsSuggestedPage', [$this, 'isSuggested'])
 		];
 	}
 
