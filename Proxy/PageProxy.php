@@ -38,7 +38,7 @@ class PageProxy implements PageProxyInterface {
 	/**
 	 * @param string $pageName
 	 * @param string $programId
-	 * @return mixed
+	 * @return OneHydraPage
 	 */
 	public function getPage($pageName, $programId) {
 		return $this->getPageFromDB($pageName, $programId);
@@ -47,7 +47,7 @@ class PageProxy implements PageProxyInterface {
 	/**
 	 * @param string $pageName
 	 * @param string $programId
-	 * @return mixed
+	 * @return OneHydraPage
 	 */
 	protected function getPageFromDB($pageName, $programId) {
 		return $this->getOneHydraPageRepository()->findOneByPageName($pageName, $programId);
