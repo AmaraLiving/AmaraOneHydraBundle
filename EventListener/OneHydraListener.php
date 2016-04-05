@@ -55,14 +55,16 @@ class OneHydraListener {
 
 				$pageName = $this->pageNameTransformStrategy->getPageName($request);
 
-				if ($oneHydraPage = $this->pageManager->getPage($pageName)) {
-					$pageObject = $oneHydraPage->getPageObject();
+				if ($pageEntity = $this->pageManager->getPage($pageName)) {
+					$page = $pageEntity->getPageObject();
 
+					$hasRedirectCode = in_array($page->getRedirectCode(), [301, 302]);
+					$hasRedirectUrl = (strlen($page->getRedirectUrl()) > 0);
 
-					if (in_array($pageObject->getRedirectCode(), [301, 302])) {
-						$event->setResponse(new RedirectResponse($pageObject->getRedirectUrl(), $pageObject->getRedirectCode()));
+					if ($hasRedirectCode && $hasRedirectUrl) {
+						$event->setResponse(new RedirectResponse($page->getRedirectUrl(), $page->getRedirectCode()));
 					} else {
-						$request->attributes->set($this->pageManager->requestAttributeKey, $oneHydraPage->getPageName());
+						$request->attributes->set($this->pageManager->requestAttributeKey, $pageEntity->getPageName());
 					}
 				}
 			}

@@ -7,9 +7,16 @@
  */
 namespace Amara\Bundle\OneHydraBundle\Tests\EventListner;
 
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener;
+use Amara\Bundle\OneHydraBundle\Service\PageManager;
+use Amara\Bundle\OneHydraBundle\Strategy\PageNameTransformStrategyInterface;
+use Amara\OneHydra\Object\PageObject;
+use Prophecy\Argument;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 class OneHydraListenerTest extends \PHPUnit_Framework_TestCase {
 
@@ -26,124 +33,79 @@ class OneHydraListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->listener = new OneHydraListener();
 		$this->response = new Response();
 		$this->request = new Request();
-
-		$this->markTestSkipped("These tests need to be updated");
 	}
 
-	/**
-	 * @cover Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener::onKernelRequester
-	 */
-	public function testRedirectIsCatched() {
-		$pageEntity = $this->getPageRedirectMock();
-		$pageManager = $this->getPageManagerMock($pageEntity);
-		$event = $this->getEventMock();
+	public function testNoRedirectWithEmptyUrl() {
+		$pageName = '/blah';
+		$redirectCode = 301;
+		$redirectUrl = '';
 
-		$event->expects($this->once())
-			->method('setResponse')
-			->willReturn($this->response);
+		$page = $this->prophesize(PageObject::class);
+		$page->getRedirectCode()->willReturn($redirectCode);
+		$page->getRedirectUrl()->willReturn($redirectUrl);
 
+		$pageEntity = $this->prophesize(OneHydraPage::class);
+		$pageEntity->getPageObject()->willReturn($page);
+		$pageEntity->getPageName()->willReturn($pageName);
 
-		$this->listener->setPageManager($pageManager);
-		$this->listener->onKernelRequest($event);
+		$event = $this->prophesize(GetResponseEvent::class);
+		$event->getRequest()->willReturn($this->request);
+		$event->isMasterRequest()->willReturn(true);
+		$event->setResponse(Argument::any())->shouldNotBeCalled();
 
+		$this->request->headers->set('accept', 'text/html');
+
+		$pageNameTransformStrategy = $this->prophesize(PageNameTransformStrategyInterface::class);
+		$pageNameTransformStrategy->getPageName($this->request)->willReturn($pageName);
+
+		$pageManager = $this->prophesize(PageManager::class);
+		$pageManager->getPage($pageName)->willReturn($pageEntity);
+
+		$this->listener->setPageManager($pageManager->reveal());
+		$this->listener->setPageNameTransformStrategy($pageNameTransformStrategy->reveal());
+
+		$this->listener->onKernelRequest($event->reveal());
+
+		$this->assertEquals($pageName, $this->request->attributes->get('_one_hydra_name'), "Page name attribute was set on request");
 	}
 
-	/**
-	 * @cover Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener::onKernelRequester
-	 */
-	public function testNoRedirect() {
-		$pageEntity = $this->getPage200Mock();
-		$pageManager = $this->getPageManagerMock($pageEntity);
-		$currenPageState = $this->getCurretPageStateMock();
+	public function testRedirectWithNonEmptyUrl() {
+		$pageName = '/blah';
+		$redirectCode = 301;
+		$redirectUrl = '/';
 
-		$this->listener->setPageManager($pageManager);
-		$this->listener->setCurrentPageState($currenPageState);
-		$this->listener->onKernelRequest($this->getEventMock());
+		$page = $this->prophesize(PageObject::class);
+		$page->getRedirectCode()->willReturn($redirectCode);
+		$page->getRedirectUrl()->willReturn($redirectUrl);
 
+		$pageEntity = $this->prophesize(OneHydraPage::class);
+		$pageEntity->getPageObject()->willReturn($page);
+		$pageEntity->getPageName()->willReturn($pageName);
 
+		$event = $this->prophesize(GetResponseEvent::class);
+		$event->getRequest()->willReturn($this->request);
+		$event->isMasterRequest()->willReturn(true);
+		$event->setResponse(Argument::that(function ($item) use ($redirectUrl, $redirectCode) {
+			return (
+				$item instanceof RedirectResponse &&
+				$redirectUrl === $item->getTargetUrl() &&
+				$redirectCode === $item->getStatusCode()
+			);
+		}))->shouldBeCalled();
 
-	}
+		$this->request->headers->set('accept', 'text/html');
 
-	private function getEventMock() {
-		$event = $this->getMockBuilder('Symfony\Component\HttpKernel\Event\GetResponseEvent')
-			          ->disableOriginalConstructor()
-			          ->setMethods(['getRequest', 'setResponse'])
-			          ->getMock();
+		$pageNameTransformStrategy = $this->prophesize(PageNameTransformStrategyInterface::class);
+		$pageNameTransformStrategy->getPageName($this->request)->willReturn($pageName);
 
-		$event->expects($this->once())
-			  ->method('getRequest')
-			  ->willReturn($this->request);
+		$pageManager = $this->prophesize(PageManager::class);
+		$pageManager->getPage($pageName)->willReturn($pageEntity);
 
-		return $event;
-	}
+		$this->listener->setPageManager($pageManager->reveal());
+		$this->listener->setPageNameTransformStrategy($pageNameTransformStrategy->reveal());
 
-	private function getCurretPageStateMock() {
-		$currentPageState = $this->getMockBuilder('\Amara\Bundle\OneHydra\State\CurrentPageState')
-			                     ->setMethods(['setPage'])
-								 ->getMock();
+		$this->listener->onKernelRequest($event->reveal());
 
-		$currentPageState->expects($this->once())
-						 ->method('setPage');
-
-		return $currentPageState;
-	}
-
-	public function getPageManagerMock($pageEntity) {
-		$pageManager = $this->getMockBuilder('\Amara\Bundle\OneHydraBundle\Service\PageManager')
-							->setMethods(['getPage'])
-							->getMock();
-
-		$pageManager->expects($this->once())
-				    ->method('getPage')
-					->willReturn($pageEntity);
-
-		return $pageManager;
-	}
-
-
-	private function getPage200Mock() {
-
-		$pageObject = $this->getMockBuilder('\Amara\OneHydra\Object\PageObject')
-			->setMethods(['getRedirectCode'])
-			->getMock();
-
-		$pageObject->expects($this->once())
-			->method('getRedirectCode')
-			->willReturn(200);
-
-		$pageObject->expects($this->never())
-			->method('getRedirectUrl');
-
-		return $this->getPageEntity($pageObject);
-	}
-
-
-	private function getPageRedirectMock() {
-
-		$pageObject = $this->getMockBuilder('\Amara\OneHydra\Object\PageObject')
-					 ->setMethods(['getRedirectCode', 'getRedirectUrl'])
-			         ->getMock();
-
-		$pageObject->expects($this->exactly(2))
-					->method('getRedirectCode')
-					->willReturn(301);
-
-		$pageObject->expects($this->once())
-					->method('getRedirectUrl')
-					->willReturn('http://foo.bar');
-
-		return $this->getPageEntity($pageObject);
-	}
-
-	private function getPageEntity($pageObject) {
-		$pageEntity = $this->getMockBuilder('\stdClass')
-						->setMethods(['getPageObject'])
-						->getMock();
-
-		$pageEntity->expects($this->any())
-					->method('getPageObject')
-					->willReturn($pageObject);
-
-		return $pageEntity;
+		$this->assertNotEquals($pageName, $this->request->attributes->get('_one_hydra_name'), "Page name attribute was set on request");
 	}
 }
