@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 13/07/15
- * Time: 10:02
- */
 
 namespace Amara\Bundle\OneHydraBundle\Repository;
-
 
 use Doctrine\ORM\EntityRepository;
 

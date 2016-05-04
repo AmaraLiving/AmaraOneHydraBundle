@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 13/08/15
- * Time: 15:07
- */
+
 namespace Amara\Bundle\OneHydraBundle\Tests\EventListner;
 
 use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;

@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 17/08/15
- * Time: 11:32
- */
+
 namespace Amara\Bundle\OneHydraBundle\Tests\Strategy;
 
 use Amara\Bundle\OneHydraBundle\Strategy\EmptyProgramSolverStrategy;

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 17/08/15
- * Time: 09:17
- */
 
 namespace Amara\Bundle\OneHydraBundle\Tests\Service;
 

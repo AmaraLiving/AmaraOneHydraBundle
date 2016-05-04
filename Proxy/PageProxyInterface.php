@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 05/08/15
- * Time: 09:30
- */
 
 namespace Amara\Bundle\OneHydraBundle\Proxy;
 
