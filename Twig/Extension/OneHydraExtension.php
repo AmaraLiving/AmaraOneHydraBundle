@@ -2,32 +2,32 @@
 
 namespace Amara\Bundle\OneHydraBundle\Twig\Extension;
 
-
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig_Extension;
 use Twig_SimpleFunction;
 
-class OneHydraExtension extends \Twig_Extension {
-
+/**
+ * OneHydraExtension
+ */
+class OneHydraExtension extends Twig_Extension {
 	/**
-	 * @var Request
+	 * @var RequestStack
 	 */
-	private $request;
+	private $requestStack;
 
 	/**
 	 * @var PageManager
 	 */
 	private $pageManager;
 
-
 	/**
 	 * @param RequestStack $request
 	 */
-	public function setRequest(RequestStack $request) {
-		$this->request = $request->getCurrentRequest();
+	public function setRequestStack(RequestStack $request) {
+		$this->requestStack = $request->getCurrentRequest();
 	}
-
 
 	/**
 	 * @param PageManager $pageManager
@@ -43,7 +43,12 @@ class OneHydraExtension extends \Twig_Extension {
 	public function isSuggested($request = null) {
 
 		if (is_null($request)) {
-			$request = $this->request;
+			$request = $this->requestStack->getCurrentRequest();
+		}
+
+		if (is_null($request)) {
+			// We still have no request, so we cannot look up the page
+			return false;
 		}
 
 		if ($page = $this->pageManager->getPageByRequest($request)) {
@@ -81,7 +86,12 @@ class OneHydraExtension extends \Twig_Extension {
 	public function getOneHydraHeadContent($key, $defaultValue, $request = null) {
 
 		if (is_null($request)) {
-			$request = $this->request;
+			$request = $this->requestStack->getCurrentRequest();
+		}
+
+		if (is_null($request)) {
+			// We still have no request, so we cannot look up the page
+			return false;
 		}
 
 		if ($page = $this->pageManager->getPageByRequest($request)) {
@@ -95,10 +105,9 @@ class OneHydraExtension extends \Twig_Extension {
 
 					return (!is_null($value) ? ($value) : $defaultValue);
 				}
-
 			}
-		} else {
-			return $defaultValue;
 		}
+
+		return $defaultValue;
 	}
 }
