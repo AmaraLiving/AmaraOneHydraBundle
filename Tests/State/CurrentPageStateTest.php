@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 17/08/15
- * Time: 11:15
- */
+
 namespace Amara\Bundle\OneHydraBundle\Tests\State;
 
 use Amara\Bundle\OneHydraBundle\State\CurrentPageState;

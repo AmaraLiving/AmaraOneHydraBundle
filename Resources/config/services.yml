@@ -10,44 +10,43 @@ parameters:
 
 services:
     onehydra_pagemanager:
-        class: %amara_one_hydra.pagemanager.class%
+        class: '%amara_one_hydra.pagemanager.class%'
         calls:
-            - [setPageProxy, [@onehydra_pageproxy]]
-            - [setProgramSolverStrategy, [@onehydra_program_solver_strategy]]
+            - [setPageProxy, ['@onehydra_pageproxy']]
+            - [setProgramSolverStrategy, ['@onehydra_program_solver_strategy']]
 
     onehydra_page_entity:
-         class: %amara_one_hydra.page_entity.class%
+         class: '%amara_one_hydra.page_entity.class%'
          scope: prototype
 
     onehydra_pageproxy:
-        class: %amara_one_hydra.pageproxy%
+        class: '%amara_one_hydra.pageproxy%'
         calls:
             - [setEntityManager, [@doctrine.orm.entity_manager]]
             - [setContainer, [@service_container]]
 
     onehydra_current_page_state:
-        class: %amara_one_hydra.current_page_state.class%
+        class: '%amara_one_hydra.current_page_state.class%'
 
     onehydra_program_solver_strategy:
-        class: %amara_one_hydra.program_solver_strategy.class%
+        class: '%amara_one_hydra.program_solver_strategy.class%'
 
     onehydra_pagename_transform_strategy:
-        class: %amara_one_hydra.pagename_transform_strategy.class%
+        class: '%amara_one_hydra.pagename_transform_strategy.class%'
 
     twig.onehydra_extension:
-        class: %amara_one_hydra.twig_ext.class%
+        class: '%amara_one_hydra.twig_ext.class%'
         calls:
-            - [setRequest, [@request_stack]]
-            - [setPageManager, [@onehydra_pagemanager]]
+            - [setRequestStack, ['@request_stack']]
+            - [setPageManager, ['@onehydra_pagemanager']]
         tags: 
             - { name: twig.extension }
 
-
     kernel.listeners.onehydra_listener:
-        class: %amara_one_hydra.listener.class%
+        class: '%amara_one_hydra.listener.class%'
         calls:
-            - [setPageManager, [@onehydra_pagemanager]]
-            - [setCurrentPageState, [@onehydra_current_page_state]]
-            - [setPageNameTransformStrategy, [@onehydra_pagename_transform_strategy]]
+            - [setPageManager, ['@onehydra_pagemanager']]
+            - [setCurrentPageState, ['@onehydra_current_page_state']]
+            - [setPageNameTransformStrategy, ['@onehydra_pagename_transform_strategy']]
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}

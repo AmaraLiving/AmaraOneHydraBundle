@@ -4,13 +4,6 @@ namespace Amara\Bundle\OneHydraBundle\Tests\Proxy;
 use Amara\Bundle\OneHydraBundle\Proxy\PageProxy;
 use Amara\OneHydra\Object\PageObject;
 
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 14/08/15
- * Time: 10:24
- */
-
 class PageProxyTest extends \PHPUnit_Framework_TestCase {
 
 	/**

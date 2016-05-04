@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 17/08/15
- * Time: 11:46
- */
 
 namespace Amara\Bundle\OneHydraBundle\Tests\Twig\Extension;
 

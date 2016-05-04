@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 05/08/15
- * Time: 09:28
- */
+
 namespace Amara\Bundle\OneHydraBundle\Proxy;
 
 use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;

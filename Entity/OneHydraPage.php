@@ -1,16 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincenzotrapani
- * Date: 08/07/15
- * Time: 10:45
- */
 
 namespace Amara\Bundle\OneHydraBundle\Entity;
 
 use Amara\OneHydra\Object\PageObject;
 use Doctrine\ORM\Mapping as ORM;
-
 
 /**
  * OneHydraPages
