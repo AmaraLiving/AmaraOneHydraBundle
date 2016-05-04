@@ -23,10 +23,10 @@ class OneHydraExtension extends Twig_Extension {
 	private $pageManager;
 
 	/**
-	 * @param RequestStack $request
+	 * @param RequestStack $requestStack
 	 */
-	public function setRequestStack(RequestStack $request) {
-		$this->requestStack = $request->getCurrentRequest();
+	public function setRequestStack(RequestStack $requestStack) {
+		$this->requestStack = $requestStack;
 	}
 
 	/**
