@@ -1,106 +1,109 @@
 <?php
 
-namespace Amara\Bundle\OneHydraBundle\Tests\EventListner;
+/*
+ * This file is part of the AmaraOneHydraBundle package.
+ *
+ * (c) Amara Living Ltd
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Amara\Bundle\OneHydraBundle\Tests\EventListener;
 
 use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
-use Amara\Bundle\OneHydraBundle\Strategy\PageNameTransformStrategyInterface;
-use Amara\OneHydra\Object\PageObject;
+use Amara\OneHydra\Model\Page;
+use PHPUnit_Framework_TestCase;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
-class OneHydraListenerTest extends \PHPUnit_Framework_TestCase {
+class OneHydraListenerTest extends PHPUnit_Framework_TestCase
+{
+    /** @var OneHydraListener */
+    public $listener;
 
-	/** @var OneHydraListener */
-	public $listener;
+    /** @var Response */
+    public $response;
 
-	/** @var Response */
-	public $response;
+    /** @var Request */
+    public $request;
 
-	/** @var Request */
-	public $request;
+    public function setUp()
+    {
+        $this->listener = new OneHydraListener();
+        $this->response = new Response();
+        $this->request = new Request();
+    }
 
-	public function setUp() {
-		$this->listener = new OneHydraListener();
-		$this->response = new Response();
-		$this->request = new Request();
-	}
+    public function testNoRedirectWithEmptyUrl()
+    {
+        $pageName = '/blah';
+        $redirectCode = 301;
+        $redirectUrl = '';
 
-	public function testNoRedirectWithEmptyUrl() {
-		$pageName = '/blah';
-		$redirectCode = 301;
-		$redirectUrl = '';
+        $page = $this->prophesize(Page::class);
+        $page->getRedirectCode()->willReturn($redirectCode);
+        $page->getRedirectUrl()->willReturn($redirectUrl);
 
-		$page = $this->prophesize(PageObject::class);
-		$page->getRedirectCode()->willReturn($redirectCode);
-		$page->getRedirectUrl()->willReturn($redirectUrl);
+        $pageEntity = $this->prophesize(OneHydraPage::class);
+        $pageEntity->getPageObject()->willReturn($page);
+        $pageEntity->getPageName()->willReturn($pageName);
 
-		$pageEntity = $this->prophesize(OneHydraPage::class);
-		$pageEntity->getPageObject()->willReturn($page);
-		$pageEntity->getPageName()->willReturn($pageName);
+        $event = $this->prophesize(GetResponseEvent::class);
+        $event->getRequest()->willReturn($this->request);
+        $event->isMasterRequest()->willReturn(true);
+        $event->setResponse(Argument::any())->shouldNotBeCalled();
 
-		$event = $this->prophesize(GetResponseEvent::class);
-		$event->getRequest()->willReturn($this->request);
-		$event->isMasterRequest()->willReturn(true);
-		$event->setResponse(Argument::any())->shouldNotBeCalled();
+        $this->request->headers->set('accept', 'text/html');
 
-		$this->request->headers->set('accept', 'text/html');
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($this->request)->willReturn($pageEntity);
+        $this->listener->setPageManager($pageManager->reveal());
 
-		$pageNameTransformStrategy = $this->prophesize(PageNameTransformStrategyInterface::class);
-		$pageNameTransformStrategy->getPageName($this->request)->willReturn($pageName);
+        $this->listener->onKernelRequest($event->reveal());
+    }
 
-		$pageManager = $this->prophesize(PageManager::class);
-		$pageManager->getPage($pageName)->willReturn($pageEntity);
+    public function testRedirectWithNonEmptyUrl()
+    {
+        $pageName = '/blah';
+        $redirectCode = 301;
+        $redirectUrl = '/';
 
-		$this->listener->setPageManager($pageManager->reveal());
-		$this->listener->setPageNameTransformStrategy($pageNameTransformStrategy->reveal());
+        $page = $this->prophesize(Page::class);
+        $page->getRedirectCode()->willReturn($redirectCode);
+        $page->getRedirectUrl()->willReturn($redirectUrl);
 
-		$this->listener->onKernelRequest($event->reveal());
+        $pageEntity = $this->prophesize(OneHydraPage::class);
+        $pageEntity->getPageObject()->willReturn($page);
+        $pageEntity->getPageName()->willReturn($pageName);
 
-		$this->assertEquals($pageName, $this->request->attributes->get('_one_hydra_name'), "Page name attribute was set on request");
-	}
+        $event = $this->prophesize(GetResponseEvent::class);
+        $event->getRequest()->willReturn($this->request);
+        $event->isMasterRequest()->willReturn(true);
+        $event->setResponse(
+            Argument::that(
+                function ($item) use ($redirectUrl, $redirectCode) {
+                    return (
+                        $item instanceof RedirectResponse &&
+                        $redirectUrl === $item->getTargetUrl() &&
+                        $redirectCode === $item->getStatusCode()
+                    );
+                }
+            )
+        )->shouldBeCalled();
 
-	public function testRedirectWithNonEmptyUrl() {
-		$pageName = '/blah';
-		$redirectCode = 301;
-		$redirectUrl = '/';
+        $this->request->headers->set('accept', 'text/html');
 
-		$page = $this->prophesize(PageObject::class);
-		$page->getRedirectCode()->willReturn($redirectCode);
-		$page->getRedirectUrl()->willReturn($redirectUrl);
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($this->request)->willReturn($pageEntity);
 
-		$pageEntity = $this->prophesize(OneHydraPage::class);
-		$pageEntity->getPageObject()->willReturn($page);
-		$pageEntity->getPageName()->willReturn($pageName);
+        $this->listener->setPageManager($pageManager->reveal());
 
-		$event = $this->prophesize(GetResponseEvent::class);
-		$event->getRequest()->willReturn($this->request);
-		$event->isMasterRequest()->willReturn(true);
-		$event->setResponse(Argument::that(function ($item) use ($redirectUrl, $redirectCode) {
-			return (
-				$item instanceof RedirectResponse &&
-				$redirectUrl === $item->getTargetUrl() &&
-				$redirectCode === $item->getStatusCode()
-			);
-		}))->shouldBeCalled();
-
-		$this->request->headers->set('accept', 'text/html');
-
-		$pageNameTransformStrategy = $this->prophesize(PageNameTransformStrategyInterface::class);
-		$pageNameTransformStrategy->getPageName($this->request)->willReturn($pageName);
-
-		$pageManager = $this->prophesize(PageManager::class);
-		$pageManager->getPage($pageName)->willReturn($pageEntity);
-
-		$this->listener->setPageManager($pageManager->reveal());
-		$this->listener->setPageNameTransformStrategy($pageNameTransformStrategy->reveal());
-
-		$this->listener->onKernelRequest($event->reveal());
-
-		$this->assertNotEquals($pageName, $this->request->attributes->get('_one_hydra_name'), "Page name attribute was set on request");
-	}
+        $this->listener->onKernelRequest($event->reveal());
+    }
 }

@@ -1,20 +1,23 @@
 <?php
 
+/*
+ * This file is part of the AmaraOneHydraBundle package.
+ *
+ * (c) Amara Living Ltd
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Amara\Bundle\OneHydraBundle;
 
-use Amara\Bundle\OneHydraBundle\DependencyInjection\Compiler\ProxyPass;
-use Amara\Bundle\OneHydraBundle\DependencyInjection\Compiler\PageNameTransformStrategyPass;
-use Amara\Bundle\OneHydraBundle\DependencyInjection\Compiler\ProgramSolverStrategyPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class AmaraOneHydraBundle extends Bundle
 {
-	public function build(ContainerBuilder $container) {
-		parent::build($container);
-
-		$container->addCompilerPass(new ProxyPass());
-		$container->addCompilerPass(new ProgramSolverStrategyPass());
-		$container->addCompilerPass(new PageNameTransformStrategyPass());
-	}
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+    }
 }

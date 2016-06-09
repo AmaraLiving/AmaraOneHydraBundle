@@ -1,32 +1,39 @@
 {
-    "name": "amara/onehydra-bundle",
-    "description": "Bundle to integrate Amara's OneHydra library with Symfony2",
-    "repositories": [
-      {
-        "type": "vcs",
-        "url":  "https://github.com/AmaraLiving/php-onehydra"
-      }
-    ],
-    "require": {
-        "php": ">=5.3.9",
-        "amara/onehydra": "dev-master",
-        "symfony/framework-bundle":  ">=2.0.0",
-        "doctrine/orm": "~2.2,>=2.2.3,<2.5",
-        "doctrine/doctrine-bundle": "~1.4",
-        "twig/extensions": "1.0.*"
+  "name": "amara/onehydra-bundle",
+  "description": "Bundle to integrate Amara's OneHydra library with Symfony2",
+  "version": "v0.2.0",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vincenzo Trapani",
+      "email": "vincenzo.trapani@amara.com"
     },
-    "require-dev": {
-      "phpunit/phpunit": "4.6.*"
-    },
-    "autoload": {
-      "psr-0": { "Amara\\Bundle\\OneHydraBundle": "" }
-    },
-    "target-dir": "Amara/Bundle/OneHydraBundle",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Vincenzo Trapani",
-            "email": "vincenzo.trapani@amara.com"
-        }
-    ]
+    {
+      "name": "Ross Motley",
+      "email": "ross.motley@amara.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/AmaraLiving/php-onehydra"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.9",
+    "amara/onehydra": "v2.x-dev",
+    "symfony/framework-bundle": "~2.3|~3.0",
+    "doctrine/orm": "~2.2,>=2.2.3,<2.5",
+    "doctrine/doctrine-bundle": "~1.4",
+    "twig/extensions": "~1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8"
+  },
+  "autoload": {
+    "psr-0": {
+      "Amara\\Bundle\\OneHydraBundle": ""
+    }
+  },
+  "target-dir": "Amara/Bundle/OneHydraBundle"
 }

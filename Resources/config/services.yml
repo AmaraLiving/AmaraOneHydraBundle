@@ -1,52 +1,61 @@
 parameters:
-     amara_one_hydra.pagemanager.class: Amara\Bundle\OneHydraBundle\Service\PageManager
-     amara_one_hydra.twig_ext.class: Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension
-     amara_one_hydra.listener.class: Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener
-     amara_one_hydra.program_solver_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\EmptyProgramSolverStrategy
-     amara_one_hydra.pageproxy: Amara\Bundle\OneHydraBundle\Proxy\PageProxy
-     amara_one_hydra.current_page_state.class: Amara\Bundle\OneHydraBundle\State\CurrentPageState
-     amara_one_hydra.page_entity.class: Amara\Bundle\OneHydraBundle\Entity\OneHydraPage
-     amara_one_hydra.pagename_transform_strategy.class: Amara\Bundle\OneHydraBundle\Strategy\DefaultPageNameTransformStrategy
+     amara_one_hydra.api.default.class: Amara\OneHydra\Api
+     amara_one_hydra.api.http_request_builder.default.class: Amara\OneHydra\Http\HttpRequestBuilder
+     amara_one_hydra.api.transport.guzzle.class: Amara\OneHydra\Http\Transport\GuzzleTransport
+     amara_one_hydra.api.result_builder_engine.default.class: Amara\OneHydra\ResultBuilder\ResultBuilderEngine
+     amara_one_hydra.page_manager.default.class: Amara\Bundle\OneHydraBundle\Service\PageManager
+     twig.onehydra_extension.default.class: Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension
+     amara_one_hydra.listener.default.class: Amara\Bundle\OneHydraBundle\EventListener\OneHydraListener
+     amara_one_hydra.page_storage.default.class: Amara\Bundle\OneHydraBundle\Storage\PageStorage
+     amara_one_hydra.page_transform_strategy.default.class: Amara\Bundle\OneHydraBundle\Strategy\DefaultPageTransformStrategy
 
 services:
-    onehydra_pagemanager:
-        class: '%amara_one_hydra.pagemanager.class%'
+    amara_one_hydra.api.default:
+        class: '%amara_one_hydra.api.default.class%'
+        arguments: ['@amara_one_hydra.api.http_request_builder', '@amara_one_hydra.api.transport', '@amara_one_hydra.api.result_builder_engine']
+
+    amara_one_hydra.api.http_request_builder.default:
+        class: '%amara_one_hydra.api.http_request_builder.default.class%'
+        # We're setting the auth token for each program via request attributes
+        # so we leave it blank here
+        arguments: ['%amara_one_hydra.is_uat%', '']
+
+    amara_one_hydra.api.transport.guzzle:
+        class: '%amara_one_hydra.api.transport.guzzle.class%'
+        arguments: ['@amara_one_hydra.api.guzzle_client']
+
+    amara_one_hydra.api.result_builder_engine.default:
+        class: '%amara_one_hydra.api.result_builder_engine.default.class%'
+
+    amara_one_hydra.api.guzzle_client:
+        class: GuzzleHttp\Client
+        arguments: [{defaults: {verify: '%amara_one_hydra.is_not_uat%'}}]
+
+    amara_one_hydra.page_manager.default:
+        class: '%amara_one_hydra.page_manager.default.class%'
         calls:
-            - [setPageProxy, ['@onehydra_pageproxy']]
-            - [setProgramSolverStrategy, ['@onehydra_program_solver_strategy']]
+            - [setPageStorage, ['@amara_one_hydra.page_storage']]
+            - [setPageTransformStrategy, ['@amara_one_hydra.page_transform_strategy']]
 
-    onehydra_page_entity:
-         class: '%amara_one_hydra.page_entity.class%'
-         scope: prototype
-
-    onehydra_pageproxy:
-        class: '%amara_one_hydra.pageproxy%'
+    amara_one_hydra.page_storage.default:
+        class: '%amara_one_hydra.page_storage.default.class%'
         calls:
             - [setEntityManager, [@doctrine.orm.entity_manager]]
-            - [setContainer, [@service_container]]
 
-    onehydra_current_page_state:
-        class: '%amara_one_hydra.current_page_state.class%'
+    amara_one_hydra.page_transform_strategy.default:
+        class: '%amara_one_hydra.page_transform_strategy.default.class%'
 
-    onehydra_program_solver_strategy:
-        class: '%amara_one_hydra.program_solver_strategy.class%'
-
-    onehydra_pagename_transform_strategy:
-        class: '%amara_one_hydra.pagename_transform_strategy.class%'
-
-    twig.onehydra_extension:
-        class: '%amara_one_hydra.twig_ext.class%'
+    twig.onehydra_extension.default:
+        class: '%twig.onehydra_extension.default.class%'
         calls:
             - [setRequestStack, ['@request_stack']]
-            - [setPageManager, ['@onehydra_pagemanager']]
+            - [setPageManager, ['@amara_one_hydra.page_manager']]
         tags: 
             - { name: twig.extension }
 
-    kernel.listeners.onehydra_listener:
-        class: '%amara_one_hydra.listener.class%'
+    kernel.listeners.onehydra_listener.default:
+        class: '%amara_one_hydra.listener.default.class%'
         calls:
-            - [setPageManager, ['@onehydra_pagemanager']]
-            - [setCurrentPageState, ['@onehydra_current_page_state']]
-            - [setPageNameTransformStrategy, ['@onehydra_pagename_transform_strategy']]
+            - [setPageManager, ['@amara_one_hydra.page_manager']]
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
