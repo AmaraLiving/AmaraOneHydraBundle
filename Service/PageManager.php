@@ -1,111 +1,123 @@
 <?php
+
+/*
+ * This file is part of the AmaraOneHydraBundle package.
+ *
+ * (c) Amara Living Ltd
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Amara\Bundle\OneHydraBundle\Service;
 
-use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
-use Amara\Bundle\OneHydraBundle\Proxy\PageProxyInterface;
-use Amara\Bundle\OneHydraBundle\Strategy\ProgramSolverStrategyInterface;
-use Amara\OneHydra\Object\PageObject;
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPageInterface;
+use Amara\Bundle\OneHydraBundle\Storage\PageStorageInterface;
+use Amara\Bundle\OneHydraBundle\Strategy\PageTransformStrategyInterface;
+use Amara\OneHydra\Model\PageInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * PageManager
+ */
+class PageManager
+{
+    /** @var PageStorageInterface */
+    private $pageStorage;
 
-class PageManager {
+    /** @var PageTransformStrategyInterface */
+    public $pageTransformStrategy;
 
-	/** @var PageProxyInterface */
-	private $pageProxy;
+    /** @var array */
+    private $cache = [];
 
-	/** @var ProgramSolverStrategyInterface */
-	private $programIdSolverStrategy;
+    /** @var string */
+    CONST REQUEST_KEY_PAGE_NAME = '_one_hydra_name';
+    CONST REQUEST_KEY_PROGRAM = '_one_hydra_program';
 
-	/** @var array */
-	private $cache = [];
+    /**
+     * @param PageStorageInterface $pageStorage
+     */
+    public function setPageStorage(PageStorageInterface $pageStorage)
+    {
+        $this->pageStorage = $pageStorage;
+    }
 
-	/** @var string */
-	public $requestAttributeKey = '_one_hydra_name';
+    /**
+     * @param PageTransformStrategyInterface $pageNameTransformStrategy
+     */
+    public function setPageTransformStrategy(PageTransformStrategyInterface $pageNameTransformStrategy)
+    {
+        $this->pageTransformStrategy = $pageNameTransformStrategy;
+    }
 
-	/**
-	 * @param PageProxyInterface $pageProxy
-	 */
-	public function setPageProxy(PageProxyInterface $pageProxy) {
-		$this->pageProxy = $pageProxy;
-	}
+    /**
+     * Create/update our system with this Page from OneHydra
+     *
+     * @param PageInterface $page
+     * @param string $programId
+     */
+    public function addPage(PageInterface $page, $programId)
+    {
+        // Transform the raw page if we want to before persisting it
+        $page = $this->pageTransformStrategy->transformPageForStorage($page);
 
-	/**
-	 * @param ProgramSolverStrategyInterface $programIdSolverStrategy
-	 */
-	public function setProgramSolverStrategy(ProgramSolverStrategyInterface $programIdSolverStrategy) {
-		$this->programIdSolverStrategy = $programIdSolverStrategy;
-	}	
+        // Get the name to use for persisting the page
+        $pageName = $this->pageTransformStrategy->getPageNameForStorage($page);
 
+        // Save the page!
+        $this->pageStorage->addPage($page, $pageName, $programId);
+    }
 
-	/**
-	 * @param PageObject $pageObject
-	 * @param string $programId
-	 */
-	public function addPage(PageObject $pageObject, $programId = null) {
+    /**
+     * Load our OneHydra page entity
+     *
+     * @todo Rename to findPageEntity?
+     * @param string $pageName
+     * @param string $programId
+     * @return OneHydraPageInterface|null
+     */
+    public function getPage($pageName, $programId)
+    {
+        $localCacheKey = $programId.'--'.$pageName;
 
-		// Remove the page if already exists (we are getting updated infos)
-		$this->removeIfExists($pageObject->getPageName(), $this->getProgramId($programId));
+        if (in_array($localCacheKey, $this->cache)) {
+            return $this->cache[$localCacheKey];
+        }
 
-		// Page creation
-		$this->pageProxy->addPage($pageObject, $programId);
+        $page = $this->pageStorage->getPageEntity($pageName, $programId);
 
-		// Post creation operations
-		$this->pageProxy->postCreation($pageObject, $programId);
-	}
+        if ($page) {
+            $this->cache[$localCacheKey] = $page;
+        }
 
-	/**
-	 * @param string $pageName
-	 * @param string $programId
-	 */
-	public function removeIfExists($pageName, $programId = null) {
-		$this->pageProxy->removeIfExists($pageName, $this->getProgramId($programId));
-	}
+        return $page;
+    }
 
-	/**
-	 * @param string $pageName
-	 * @param string $programId
-	 * @return OneHydraPage|bool
-	 */
-	public function getPage($pageName, $programId = null) {
+    /**
+     * Load our OneHydra page entity for the given request
+     *
+     * @param Request $request
+     * @return OneHydraPageInterface|null
+     */
+    public function getPageByRequest(Request $request)
+    {
+        if ($pageName = $request->attributes->get(self::REQUEST_KEY_PAGE_NAME)) {
+            $programId = $request->attributes->get(self::REQUEST_KEY_PROGRAM);
 
-		if (in_array($pageName, $this->cache)) {
-			return $this->cache[$pageName];
-		}
+            return $this->getPage($pageName, $programId);
+        }
 
-		$page = $this->pageProxy->getPage($pageName, $this->getProgramId($programId));
+        $programId = $this->pageTransformStrategy->getLookupProgramId($request);
+        $pageName = $this->pageTransformStrategy->getLookupPageName($request);
 
-		if ($page) {
-			$this->cache[$pageName] = $page;
-		}
+        $pageEntity = $this->getPage($pageName, $programId);
 
-		return $page;
-	}
+        if ($pageEntity) {
+            $request->attributes->set(self::REQUEST_KEY_PAGE_NAME, $pageName);
+            $request->attributes->set(self::REQUEST_KEY_PROGRAM, $programId);
+        }
 
-	/**
-	 * @param Request $request
-	 * @param string $programId
-	 * @return OneHydraPage|bool
-	 */
-	public function getPageByRequest(Request $request, $programId = null) {
-		if ($pageName = $request->attributes->get($this->requestAttributeKey, null)) {
-			return $this->getPage($pageName, $programId);
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param string $programId
-	 * @return string
-	 */
-	public function getProgramId($programId) {
-		if (is_null($programId)) {
-			if ($this->programIdSolverStrategy instanceof ProgramSolverStrategyInterface) {
-				return $this->programIdSolverStrategy->getProgramId();
-			}
-		} else {
-			return $programId;
-		}
-	}
-
+        return $pageEntity;
+    }
 }

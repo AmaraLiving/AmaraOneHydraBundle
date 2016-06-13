@@ -1,73 +1,70 @@
 <?php
+
+/*
+ * This file is part of the AmaraOneHydraBundle package.
+ *
+ * (c) Amara Living Ltd
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Amara\Bundle\OneHydraBundle\EventListener;
 
-use Amara\Bundle\OneHydraBundle\Strategy\PageNameTransformStrategyInterface;
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPageInterface;
+use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Amara\Bundle\OneHydraBundle\Service\PageManager;
-use Amara\Bundle\OneHydraBundle\State\CurrentPageState;
 
-class OneHydraListener {
+/**
+ * OneHydraListener
+ */
+class OneHydraListener
+{
+    /**
+     * @var PageManager
+     */
+    private $pageManager;
 
-	/**
-	 * @var PageManager
-	 */
-	private $pageManager;
+    /**
+     * @param PageManager $pageManager
+     */
+    public function setPageManager($pageManager)
+    {
+        $this->pageManager = $pageManager;
+    }
 
-	/**
-	 * @var CurrentPageState
-	 */
-	private $currentPageState;
+    /**
+     * @param GetResponseEvent $event
+     */
+    public function onKernelRequest(GetResponseEvent $event)
+    {
+        if (!$event->isMasterRequest()) {
+            return;
+        }
 
-	/** @var PageNameTransformStrategyInterface */
-	public $pageNameTransformStrategy;
+        $request = $event->getRequest();
 
-	/**
-	 * @param PageManager $pageManager
-	 */
-	public function setPageManager($pageManager) {
-		$this->pageManager = $pageManager;
-	}
+        if (false === strpos($request->headers->get('accept'), 'text/html')) {
+            return;
+        }
 
-	/**
-	 * @param CurrentPageState $currentPageState
-	 */
-	public function setCurrentPageState($currentPageState) {
-		$this->currentPageState = $currentPageState;
-	}
+        $pageEntity = $this->pageManager->getPageByRequest($request);
 
-	/**
-	 * @param PageNameTransformStrategyInterface $pageNameTransformStrategy
-	 */
-	public function setPageNameTransformStrategy(PageNameTransformStrategyInterface $pageNameTransformStrategy) {
-		$this->pageNameTransformStrategy = $pageNameTransformStrategy;
-	}
+        if (!$pageEntity instanceof OneHydraPageInterface) {
+            return;
+        }
 
-	/**
-	 * @param GetResponseEvent $event
-	 */
-	public function onKernelRequest(GetResponseEvent $event) {
+        $page = $pageEntity->getPageObject();
 
-		if ($event->isMasterRequest()) {
-			$request = $event->getRequest();
+        $redirectCode = $page->getRedirectCode();
+        $redirectUrl = $page->getRedirectUrl();
 
-			if (false !== strpos($request->headers->get('accept'), 'text/html')) {
+        $hasRedirectCode = in_array($redirectCode, [301, 302]);
+        $hasRedirectUrl = (strlen($redirectUrl) > 0);
 
-				$pageName = $this->pageNameTransformStrategy->getPageName($request);
-
-				if ($pageEntity = $this->pageManager->getPage($pageName)) {
-					$page = $pageEntity->getPageObject();
-
-					$hasRedirectCode = in_array($page->getRedirectCode(), [301, 302]);
-					$hasRedirectUrl = (strlen($page->getRedirectUrl()) > 0);
-
-					if ($hasRedirectCode && $hasRedirectUrl) {
-						$event->setResponse(new RedirectResponse($page->getRedirectUrl(), $page->getRedirectCode()));
-					} else {
-						$request->attributes->set($this->pageManager->requestAttributeKey, $pageEntity->getPageName());
-					}
-				}
-			}
-		}
-	}
+        if ($hasRedirectCode && $hasRedirectUrl) {
+            $event->setResponse(new RedirectResponse($redirectUrl, $redirectCode));
+        }
+    }
 }
