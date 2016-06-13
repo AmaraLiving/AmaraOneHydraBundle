@@ -100,19 +100,20 @@ class OneHydraExtensionTest extends \PHPUnit_Framework_TestCase
      * @param bool $mustBeNull
      * @return Page
      */
-    public function getPageObject($mustBeNull = false)
+    private function getPageObject($mustBeNull = false)
     {
-        $pageObject = new Page();
-        $pageObject->setPageUrl('/testpage');
+        $rawPageHead = new \stdClass;
+        $rawPageHead->MetaDescription = ($mustBeNull) ? null : 'ThisIsTheMetaDescription';
+        $rawPageHead->MetaKeywords = ($mustBeNull) ? null : 'ThisIsTheMetaKeywords';
+        $rawPageHead->Title = ($mustBeNull) ? null : 'ThisIsTheTitle';
 
-        $headObject = new \stdClass;
-        $headObject->MetaDescription = ($mustBeNull) ? null : 'ThisIsTheMetaDescription';
-        $headObject->MetaKeywords = ($mustBeNull) ? null : 'ThisIsTheMetaKeywords';
-        $headObject->Title = ($mustBeNull) ? null : 'ThisIsTheTitle';
+        $rawPage = new \stdClass;
+        $rawPage->HeadContent = $rawPageHead;
 
-        $pageObject->setHeadContent($headObject);
+        $page = new Page($rawPage);
+        $page->setPageUrl('/testpage');
 
-        return $pageObject;
+        return $page;
     }
 
     public function testExtensionSettings()
