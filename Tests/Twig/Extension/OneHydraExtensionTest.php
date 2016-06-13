@@ -15,19 +15,20 @@ use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension;
 use Amara\OneHydra\Model\Page;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Twig_Environment;
-use Twig_Loader_String;
+use Twig_Loader_Array;
 use Twig_SimpleFunction;
 
-class OneHydraExtensionTest extends \PHPUnit_Framework_TestCase
+class OneHydraExtensionTest extends PHPUnit_Framework_TestCase
 {
     public function testCheckThatTwigFunctionsAreRegistered()
     {
         $extension = new OneHydraExtension();
 
         $twig = new Twig_Environment(
-            new Twig_Loader_String(), [
+            new Twig_Loader_Array([]), [
                 'debug' => false,
                 'cache' => false,
                 'optimizations' => 0,
