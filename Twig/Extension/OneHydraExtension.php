@@ -54,7 +54,6 @@ class OneHydraExtension extends Twig_Extension
      */
     public function isSuggested($request = null)
     {
-
         if (is_null($request)) {
             $request = $this->requestStack->getCurrentRequest();
         }
@@ -100,7 +99,6 @@ class OneHydraExtension extends Twig_Extension
      */
     public function getOneHydraHeadContent($key, $defaultValue, $request = null)
     {
-
         if (is_null($request)) {
             $request = $this->requestStack->getCurrentRequest();
         }
