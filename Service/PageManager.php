@@ -81,7 +81,7 @@ class PageManager
     {
         $localCacheKey = $programId.'--'.$pageName;
 
-        if (in_array($localCacheKey, $this->cache)) {
+        if (array_key_exists($localCacheKey, $this->cache)) {
             return $this->cache[$localCacheKey];
         }
 
