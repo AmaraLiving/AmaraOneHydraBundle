@@ -1,5 +1,11 @@
 # AmaraOneHydraBundle
 
+[![Build Status](https://travis-ci.org/AmaraLiving/AmaraOneHydraBundle.svg?branch=master)](https://travis-ci.org/AmaraLiving/AmaraOneHydraBundle)
+[![Coverage Status](https://coveralls.io/repos/github/AmaraLiving/AmaraOneHydraBundle/badge.svg?branch=master)](https://coveralls.io/github/AmaraLiving/AmaraOneHydraBundle?branch=master)
+
+Purpose
+-------
+
 Bundle to integrate [Amara's OneHydra library](https://github.com/AmaraLiving/php-onehydra) with Symfony2.
 
 It's still in development so will change often. 
