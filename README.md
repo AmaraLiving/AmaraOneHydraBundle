@@ -1,5 +1,8 @@
 # AmaraOneHydraBundle
+
 Bundle to integrate [Amara's OneHydra library](https://github.com/AmaraLiving/php-onehydra) with Symfony2.
+
+It's still in development so will change often. 
 
 Installation
 ------------
@@ -42,7 +45,10 @@ if ($oneHydraPage) {
 }
 ```
 
+Versioning
+----------
 
+The library will be following Semantic Versioning, although we don't have a 1.0.0 release
+yet!
 
-
-
+http://semver.org/spec/v2.0.0.html
