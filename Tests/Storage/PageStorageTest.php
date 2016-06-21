@@ -67,7 +67,11 @@ class PageStorageTest extends PHPUnit_Framework_TestCase
             PHPUnit_Framework_Assert::assertEquals($programId, $pageEntity->getProgramId());
             PHPUnit_Framework_Assert::assertEquals($page->reveal(), $pageEntity->getPageObject());
 
-            // todo: assert date!
+            $now = new \DateTime();
+            $createdAt = $pageEntity->getCreatedAt();
+
+            $toleranceInSeconds = 200;
+            $this->assertLessThan($toleranceInSeconds, abs($now->getTimestamp() - $createdAt->getTimestamp()), "Created at is recent");
 
             return true;
         }))->shouldBeCalled();
