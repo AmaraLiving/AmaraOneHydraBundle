@@ -40,7 +40,7 @@ services:
     amara_one_hydra.page_storage.default:
         class: '%amara_one_hydra.page_storage.default.class%'
         calls:
-            - [setEntityManager, [@doctrine.orm.entity_manager]]
+            - [setEntityManager, ['@doctrine.orm.entity_manager']]
 
     amara_one_hydra.page_transform_strategy.default:
         class: '%amara_one_hydra.page_transform_strategy.default.class%'

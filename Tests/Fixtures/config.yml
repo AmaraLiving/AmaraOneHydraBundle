@@ -1,0 +1,16 @@
+# config.yml for tests
+
+framework:
+    secret: test
+    session:
+        storage_id: session.storage.mock_file
+
+amara_one_hydra:
+    programs:
+        example:
+          auth_token: authtoken1
+
+services:
+    # Create a "mocked" entity manager
+    doctrine.orm.entity_manager:
+        class: 'stdClass'
