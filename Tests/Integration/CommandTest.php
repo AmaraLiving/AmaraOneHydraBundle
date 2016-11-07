@@ -52,7 +52,7 @@ class CommandTest extends PHPUnit_Framework_TestCase
         $this->entityManager = $entityManager;
     }
 
-    public function testCommandWithMockedApiAndPageManager()
+    public function testCommandWithMockedApiAndPageManagerWhenProgramIdOptionUsed()
     {
         $application = new Application($this->kernel);
         $application->add(new OneHydraFetchCommand());
@@ -103,6 +103,86 @@ class CommandTest extends PHPUnit_Framework_TestCase
         $command = $application->find('onehydra:fetch');
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), '--programId' => $programId]);
+
+        $this->assertEquals(0, $commandTester->getStatusCode());
+    }
+
+    public function testCommandWithMockedApiAndPageManagerWhenProgramIdOptionNotUsed()
+    {
+        $application = new Application($this->kernel);
+        $application->add(new OneHydraFetchCommand());
+
+        $programId = 'example';
+        $programId2 = 'example2';
+
+        $url1 = '/foo/bar1';
+        $url2 = '/foo/baz2';
+        $url3 = '/foo/baz3';
+        $url4 = '/foo/baz4';
+
+        $pagesResult = new PagesResult(new HttpResponse(), [$url1, $url2]);
+        $pagesResult2 = new PagesResult(new HttpResponse(), [$url3, $url4]);
+
+        $page1 = $this->prophesize(PageInterface::class);
+        $page2 = $this->prophesize(PageInterface::class);
+        $page3 = $this->prophesize(PageInterface::class);
+        $page4 = $this->prophesize(PageInterface::class);
+
+        $pageResult1 = new PageResult(new HttpResponse(), $page1->reveal());
+        $pageResult2 = new PageResult(new HttpResponse(), $page2->reveal());
+        $pageResult3 = new PageResult(new HttpResponse(), $page3->reveal());
+        $pageResult4 = new PageResult(new HttpResponse(), $page4->reveal());
+
+        $api = $this->prophesize(Api::class);
+
+        $requestAttributes = ['auth_token' => 'authtoken1'];
+        $requestAttributes2 = ['auth_token' => 'authtoken2'];
+
+        $api->getPagesResult(
+            50,
+            Argument::type('DateTime'),
+            $requestAttributes
+        )->willReturn($pagesResult);
+
+        $api->getPagesResult(
+            50,
+            Argument::type('DateTime'),
+            $requestAttributes2
+        )->willReturn($pagesResult2);
+
+        $api->getPageResult(
+            $url1,
+            $requestAttributes
+        )->willReturn($pageResult1);
+
+        $api->getPageResult(
+            $url2,
+            $requestAttributes
+        )->willReturn($pageResult2);
+
+        $api->getPageResult(
+            $url3,
+            $requestAttributes2
+        )->willReturn($pageResult3);
+
+        $api->getPageResult(
+            $url4,
+            $requestAttributes2
+        )->willReturn($pageResult4);
+
+        $this->container->set('amara_one_hydra.api', $api->reveal());
+
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->addPage($page1, $programId)->shouldBeCalled();
+        $pageManager->addPage($page2, $programId)->shouldBeCalled();
+        $pageManager->addPage($page3, $programId2)->shouldBeCalled();
+        $pageManager->addPage($page4, $programId2)->shouldBeCalled();
+
+        $this->container->set('amara_one_hydra.page_manager', $pageManager->reveal());
+
+        $command = $application->find('onehydra:fetch');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()]);
 
         $this->assertEquals(0, $commandTester->getStatusCode());
     }

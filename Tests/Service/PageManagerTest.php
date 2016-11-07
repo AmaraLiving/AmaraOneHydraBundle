@@ -53,7 +53,7 @@ class PageManagerTest extends PHPUnit_Framework_TestCase
         $pageStorage = $this->prophesize(PageStorageInterface::class);
 
         // Should be called just once because of the local cache!
-        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(1);
+        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(2);
 
         $pageManager = new PageManager();
         $pageManager->setPageStorage($pageStorage->reveal());
@@ -76,7 +76,7 @@ class PageManagerTest extends PHPUnit_Framework_TestCase
 
         $pageStorage = $this->prophesize(PageStorageInterface::class);
         // Should be called just once because of the local cache!
-        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(1);
+        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(2);
 
         $pageTransformStrategy = $this->prophesize(PageTransformStrategyInterface::class);
         $pageTransformStrategy->getLookupProgramId($request)->willReturn($programId);
@@ -109,7 +109,7 @@ class PageManagerTest extends PHPUnit_Framework_TestCase
 
         $pageStorage = $this->prophesize(PageStorageInterface::class);
         // Should be called just once because of the local cache!
-        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(1);
+        $pageStorage->getPageEntity($pageName, $programId)->willReturn($pageEntity)->shouldBeCalledTimes(2);
 
         $pageTransformStrategy = $this->prophesize(PageTransformStrategyInterface::class);
         $pageTransformStrategy->getLookupProgramId($request)->shouldNotBeCalled();

@@ -85,7 +85,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $this->container->getParameter('amara_one_hydra.is_not_uat'));
         $this->assertEquals('PT15M', $this->container->getParameter('amara_one_hydra.dateinterval'));
         $this->assertEquals(
-            ['example' => ['auth_token' => 'authtoken1']],
+            ['example' => ['auth_token' => 'authtoken1'], 'example2' => ['auth_token' => 'authtoken2']],
             $this->container->getParameter('amara_one_hydra.programs')
         );
     }
