@@ -76,7 +76,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand
 
         $availablePrograms = $container->getParameter('amara_one_hydra.programs');
 
-        $programsToFetch = $availablePrograms;
+        $programsToFetch = [];
         if ($input->getOption('programId') !== null) {
             $programId = $input->getOption('programId');
 
@@ -86,7 +86,9 @@ class OneHydraFetchCommand extends ContainerAwareCommand
                 return 1;
             }
 
-            $programsToFetch = [$availablePrograms[$programId]];
+            $programsToFetch[$programId] = $availablePrograms[$programId];
+        } else {
+            $programsToFetch = $availablePrograms;
         }
 
         foreach ($programsToFetch as $programId => $programDetails) {
