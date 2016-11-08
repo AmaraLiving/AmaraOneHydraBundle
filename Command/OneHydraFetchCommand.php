@@ -48,7 +48,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand
             ->addOption(
                 'programId',
                 null,
-                InputOption::VALUE_REQUIRED,
+                InputOption::VALUE_OPTIONAL,
                 'The programId to fetch pages for',
                 null
             );
@@ -74,47 +74,54 @@ class OneHydraFetchCommand extends ContainerAwareCommand
         $api = $this->getOneHydraApi();
         $pageManager = $this->getPageManager();
 
-        $programs = $container->getParameter('amara_one_hydra.programs');
-        $programId = $input->getOption('programId');
+        $availablePrograms = $container->getParameter('amara_one_hydra.programs');
 
-        if (!isset($programs[$programId])) {
-            $output->writeln('<error>There is no program with id=' . $programId . '</error>');
+        $programsToFetch = [];
+        if ($input->getOption('programId') !== null) {
+            $programId = $input->getOption('programId');
 
-            return 1;
+            if (!isset($availablePrograms[$programId])) {
+                $output->writeln('<error>There is no program with id='.$programId.'</error>');
+
+                return 1;
+            }
+
+            $programsToFetch[$programId] = $availablePrograms[$programId];
+        } else {
+            $programsToFetch = $availablePrograms;
         }
 
-        $programDetails = $programs[$programId];
-        $authToken = $programDetails['auth_token'];
+        foreach ($programsToFetch as $programId => $programDetails) {
+            $authToken = $programDetails['auth_token'];
 
-        // We'll pass the auth key for our program through via a request attribute
-        $requestAttributes = [
-            'auth_token' => $authToken,
-        ];
+            // We'll pass the auth key for our program through via a request attribute
+            $requestAttributes = [
+                'auth_token' => $authToken,
+            ];
 
-        $output->writeln(
-            "<comment>OneHydra programId: {$input->getOption('programId')}</comment>"
-        );
+            $output->writeln("<comment>OneHydra programId: ".$programId."</comment>");
 
-        $pagesResult = $api->getPagesResult($count, $since, $requestAttributes);
-        $pageUrls = $pagesResult->getPageUrls();
+            $pagesResult = $api->getPagesResult($count, $since, $requestAttributes);
+            $pageUrls = $pagesResult->getPageUrls();
 
-        // List of all pages
-        $output->writeln('<info>Fetching a list of the pages to update</info>');
-        $progress = $this->getHelper('progress');
-        $progress->start($output, count($pageUrls));
-        $progress->setRedrawFrequency(1);
+            // List of all pages
+            $output->writeln('<info>Fetching a list of the pages to update</info>');
+            $progress = $this->getHelper('progress');
+            $progress->start($output, count($pageUrls));
+            $progress->setRedrawFrequency(1);
 
-        $output->writeln('<info>Fetching and updating each page</info>');
+            $output->writeln('<info>Fetching and updating each page</info>');
 
-        foreach ($pageUrls as $pageUrl) {
-            // Load the page from the OneHydra API
-            $pageResult = $api->getPageResult($pageUrl, $requestAttributes);
-            $page = $pageResult->getPage();
+            foreach ($pageUrls as $pageUrl) {
+                // Load the page from the OneHydra API
+                $pageResult = $api->getPageResult($pageUrl, $requestAttributes);
+                $page = $pageResult->getPage();
 
-            // Save it on our system
-            $pageManager->addPage($page, $programId);
+                // Save it on our system
+                $pageManager->addPage($page, $programId);
 
-            $progress->advance();
+                $progress->advance();
+            }
         }
 
         $output->writeln('<info>Done!</info>');

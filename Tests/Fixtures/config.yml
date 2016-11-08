@@ -9,6 +9,8 @@ amara_one_hydra:
     programs:
         example:
           auth_token: authtoken1
+        example2:
+          auth_token: authtoken2
 
 services:
     # Create a "mocked" entity manager
