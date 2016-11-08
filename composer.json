@@ -1,7 +1,7 @@
 {
   "name": "amara/onehydra-bundle",
   "description": "Bundle to integrate Amara's OneHydra library with Symfony2",
-  "version": "v0.2.1",
+  "version": "v0.3.1",
   "license": "MIT",
   "authors": [
     {
