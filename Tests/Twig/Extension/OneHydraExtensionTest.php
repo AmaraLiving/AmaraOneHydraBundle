@@ -40,7 +40,7 @@ class OneHydraExtensionTest extends PHPUnit_Framework_TestCase
         $twig->addExtension($extension);
 
         /** @var OneHydraExtension $ext */
-        $ext = $twig->getExtension('onehydra_extension');
+        $ext = $twig->getExtension(OneHydraExtension::class);
 
         $this->assertInstanceOf(OneHydraExtension::class, $ext);
 
