@@ -2,11 +2,11 @@
 
 namespace Amara\Bundle\OneHydraBundle\Tests\Entity;
 
-use Amara\Bundle\ImageBundle\Tests\BaseTestCase;
 use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
 use Amara\Bundle\OneHydraBundle\Storage\PageStorageInterface;
+use PHPUnit_Framework_TestCase;
 
-class OneHydraPageTest extends BaseTestCase
+class OneHydraPageTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var OneHydraPage
