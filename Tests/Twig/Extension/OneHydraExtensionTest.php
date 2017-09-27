@@ -12,6 +12,7 @@
 namespace Amara\Bundle\OneHydraBundle\Tests\Twig\Extension;
 
 use Amara\Bundle\OneHydraBundle\Entity\OneHydraPage;
+use Amara\Bundle\OneHydraBundle\Entity\OneHydraPageInterface;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Amara\Bundle\OneHydraBundle\Twig\Extension\OneHydraExtension;
 use Amara\OneHydra\Model\Page;
@@ -109,52 +110,132 @@ class OneHydraExtensionTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($actual);
     }
 
-    public function testOneHydraHeadContent()
+    public function testIsSuggestedWithoutRequest()
     {
+        $requestStack = $this->prophesize(RequestStack::class);
+        $requestStack->getCurrentRequest()->willReturn(null);
+
+        $extension = new OneHydraExtension();
+        $extension->setRequestStack($requestStack->reveal());
+
+        $this->assertFalse($extension->isSuggested());
+    }
+
+    public function testOneHydraHeadContentWithNullRequest()
+    {
+        $request = $this->prophesize(RequestStack::class);
+        $request->getCurrentRequest()->willReturn(null);
+
         $ext = new OneHydraExtension();
+        $ext->setRequestStack($request->reveal());
 
-        $currentPage = new OneHydraPage();
-        $currentPage->setPageObject($this->getPageObject(true));
+        $this->assertFalse(
+            $ext->getOneHydraHeadContent('description', 'defaultDescription')
+        );
+    }
 
+    public function testOneHydraHeadContentWithoutPage()
+    {
         $request = $this->prophesize(Request::class);
 
         $pageManager = $this->prophesize(PageManager::class);
-        $pageManager->getPageByRequest($request)->willReturn($currentPage);
+        $pageManager->getPageByRequest($request)->willReturn(null);
 
+        $requestStack = $this->prophesize(RequestStack::class);
+        $requestStack->getCurrentRequest()->willReturn($request->reveal());
+
+        $ext = new OneHydraExtension();
+        $ext->setRequestStack($requestStack->reveal());
         $ext->setPageManager($pageManager->reveal());
 
-        $this->assertInstanceOf(OneHydraExtension::class, $ext);
+        $this->assertEquals(
+            'defaultDescription',
+            $ext->getOneHydraHeadContent('description', 'defaultDescription')
+        );
+    }
 
-        // With no page found must return the default value
-        $this->assertEquals(
-            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal()),
-            'defaultDescription'
-        );
-        $this->assertEquals(
-            $ext->getOneHydraHeadContent('keywords', 'defaultKeywords', $request->reveal()),
-            'defaultKeywords'
-        );
-        $this->assertEquals($ext->getOneHydraHeadContent('title', 'defaultTitle', $request->reveal()), 'defaultTitle');
+    public function testOneHydraHeadContentWithPageButWithoutPageObject()
+    {
+        $request = $this->prophesize(Request::class);
 
-        // With null value must return the default value
-        $this->assertEquals(
-            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal()),
-            'defaultDescription'
-        );
-        $this->assertEquals(
-            $ext->getOneHydraHeadContent('keywords', 'defaultKeywords', $request->reveal()),
-            'defaultKeywords'
-        );
-        $this->assertEquals($ext->getOneHydraHeadContent('title', 'defaultTitle', $request->reveal()), 'defaultTitle');
-        /*
-                $currentPage->setPage($this->getPageObject());
-                $extension->setCurrentPageState($currentPage);
+        $page = $this->prophesize(OneHydraPageInterface::class);
+        $page->getPageObject()->willReturn(null);
 
-                // With not null value must return the onehydra value
-                $this->assertEquals($ext->getOneHydraHeadContent('description', '', $request->reveal()), 'ThisIsTheMetaDescription');
-                $this->assertEquals($ext->getOneHydraHeadContent('keywords', '', $request->reveal()), 'ThisIsTheMetaKeywords');
-                $this->assertEquals($ext->getOneHydraHeadContent('title', '', $request->reveal()), 'ThisIsTheTitle');
-        */
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($request)->willReturn($page->reveal());
+
+        $ext = new OneHydraExtension();
+        $ext->setPageManager($pageManager->reveal());
+
+        $this->assertEquals(
+            'defaultDescription',
+            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal())
+        );
+    }
+
+    public function testOneHydraHeadContentWithPageWithPageObjectButWithoutExistingMethod()
+    {
+        $request = $this->prophesize(Request::class);
+
+        $pageObject = $this->prophesize(PageInterface::class);
+
+        $page = $this->prophesize(OneHydraPageInterface::class);
+        $page->getPageObject()->willReturn($pageObject->reveal());
+
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($request)->willReturn($page->reveal());
+
+        $ext = new OneHydraExtension();
+        $ext->setPageManager($pageManager->reveal());
+
+        $this->assertEquals(
+            'defaultDescription',
+            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal())
+        );
+    }
+
+    public function testOneHydraHeadContentWithPageWithPageObjectWithExitingMethodButWhichReturnsNull()
+    {
+        $request = $this->prophesize(Request::class);
+
+        $pageObject = $this->prophesize(PageInterface::class);
+        $pageObject->getDescription()->willReturn(null);
+
+        $page = $this->prophesize(OneHydraPageInterface::class);
+        $page->getPageObject()->willReturn($pageObject->reveal());
+
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($request)->willReturn($page->reveal());
+
+        $ext = new OneHydraExtension();
+        $ext->setPageManager($pageManager->reveal());
+
+        $this->assertEquals(
+            'defaultDescription',
+            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal())
+        );
+    }
+
+    public function testOneHydraHeadContentWithPageWithPageObjectWithExitingMethod()
+    {
+        $request = $this->prophesize(Request::class);
+
+        $pageObject = $this->prophesize(PageInterface::class);
+        $pageObject->getDescription()->willReturn('description value');
+
+        $page = $this->prophesize(OneHydraPageInterface::class);
+        $page->getPageObject()->willReturn($pageObject->reveal());
+
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($request)->willReturn($page->reveal());
+
+        $ext = new OneHydraExtension();
+        $ext->setPageManager($pageManager->reveal());
+
+        $this->assertEquals(
+            'description value',
+            $ext->getOneHydraHeadContent('description', 'defaultDescription', $request->reveal())
+        );
     }
 
     /**

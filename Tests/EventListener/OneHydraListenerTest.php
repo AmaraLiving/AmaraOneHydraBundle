@@ -40,6 +40,39 @@ class OneHydraListenerTest extends PHPUnit_Framework_TestCase
         $this->request = new Request();
     }
 
+    public function testOnKernelRequestWhenEventNotMasterRequest()
+    {
+        $event = $this->prophesize(GetResponseEvent::class);
+        $event->isMasterRequest()->willReturn(false);
+
+        $this->assertNull($this->listener->onKernelRequest($event->reveal()));
+    }
+
+    public function testOnKernelRequestWhenRequestNotTextHtml()
+    {
+        $event = $this->prophesize(GetResponseEvent::class);
+        $event->isMasterRequest()->willReturn(true);
+        $event->getRequest()->willReturn($this->request);
+
+        $this->assertNull($this->listener->onKernelRequest($event->reveal()));
+    }
+
+    public function testOnKernelRequestWhenPageIsNotOneHydraPage()
+    {
+        $this->request->headers->set('accept', 'text/html');
+
+        $event = $this->prophesize(GetResponseEvent::class);
+        $event->isMasterRequest()->willReturn(true);
+        $event->getRequest()->willReturn($this->request);
+
+        $pageManager = $this->prophesize(PageManager::class);
+        $pageManager->getPageByRequest($this->request)->willReturn(null);
+
+        $this->listener->setPageManager($pageManager);
+
+        $this->assertNull($this->listener->onKernelRequest($event->reveal()));
+    }
+
     public function testNoRedirectWithEmptyUrl()
     {
         $pageName = '/blah';
