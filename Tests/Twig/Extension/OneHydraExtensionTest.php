@@ -238,7 +238,6 @@ class OneHydraExtensionTest extends PHPUnit_Framework_TestCase
         );
     }
 
-
     /**
      * @param bool $mustBeNull
      * @return Page

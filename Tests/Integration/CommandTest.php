@@ -153,7 +153,12 @@ class CommandTest extends PHPUnit_Framework_TestCase
 
         $command = $application->find('onehydra:fetch');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--programId' => 'incorrectProramId']);
+        $commandTester->execute(
+            [
+                'command' => $command->getName(),
+                '--programId' => 'incorrectProgramId',
+            ]
+        );
 
         $this->assertEquals(1, $commandTester->getStatusCode());
     }
