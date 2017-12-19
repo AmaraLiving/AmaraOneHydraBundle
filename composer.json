@@ -15,8 +15,8 @@
   "require": {
     "php": ">=5.5.0,<8.0",
     "amara/onehydra": "~0.4.0",
-    "symfony/framework-bundle": "~2.3|~3.0",
-    "doctrine/orm": "~2.2,>=2.2.3,<2.5",
+    "symfony/framework-bundle": "~3.0",
+    "doctrine/orm": "^2.2",
     "doctrine/doctrine-bundle": "~1.4",
     "twig/twig": "~1.26|~2.0"
   },

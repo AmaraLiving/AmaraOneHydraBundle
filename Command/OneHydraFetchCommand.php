@@ -14,6 +14,7 @@ namespace Amara\Bundle\OneHydraBundle\Command;
 use Amara\Bundle\OneHydraBundle\Service\PageManager;
 use Amara\OneHydra\Api;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -106,8 +107,7 @@ class OneHydraFetchCommand extends ContainerAwareCommand
 
             // List of all pages
             $output->writeln('<info>Fetching a list of the pages to update</info>');
-            $progress = $this->getHelper('progress');
-            $progress->start($output, count($pageUrls));
+            $progress = new ProgressBar($output, count($pageUrls));
             $progress->setRedrawFrequency(1);
 
             $output->writeln('<info>Fetching and updating each page</info>');
