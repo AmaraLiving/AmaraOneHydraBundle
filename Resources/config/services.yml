@@ -22,6 +22,7 @@ services:
 
     amara_one_hydra.api.transport.guzzle:
         class: '%amara_one_hydra.api.transport.guzzle.class%'
+        public: true
         arguments: ['@amara_one_hydra.api.guzzle_client']
 
     amara_one_hydra.api.result_builder_engine.default:
@@ -29,6 +30,7 @@ services:
 
     amara_one_hydra.api.guzzle_client:
         class: GuzzleHttp\Client
+        public: true
         arguments: [{defaults: {verify: '%amara_one_hydra.is_not_uat%'}}]
 
     amara_one_hydra.page_manager.default:
@@ -47,6 +49,7 @@ services:
 
     twig.onehydra_extension.default:
         class: '%twig.onehydra_extension.default.class%'
+        public: true
         calls:
             - [setRequestStack, ['@request_stack']]
             - [setPageManager, ['@amara_one_hydra.page_manager']]

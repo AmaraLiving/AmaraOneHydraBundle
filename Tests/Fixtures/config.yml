@@ -16,3 +16,4 @@ services:
     # Create a "mocked" entity manager
     doctrine.orm.entity_manager:
         class: 'stdClass'
+        public: true

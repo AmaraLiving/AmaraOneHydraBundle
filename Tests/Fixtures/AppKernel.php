@@ -27,7 +27,7 @@ class AppKernel extends Kernel
     {
         $bundles = [];
 
-        if (in_array($this->getEnvironment(), ['test'])) {
+        if ('test' === $this->getEnvironment()) {
             $bundles[] = new FrameworkBundle();
             $bundles[] = new AmaraOneHydraBundle();
         }
